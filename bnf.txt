@@ -2,13 +2,13 @@
 
 <digito>    ::= 0|1|2|3|4|5|6|7|8|9
 
-<letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'
+<letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '
 
 <operador> ::= + | - | / | *
 
 <entero> ::= <digito> | <entero><digito>
 
-<alfanumerico> ::= <letra>|<alfanumerico><numero>|<alfanumerico><letra>
+<alfanumerico> ::= <letra> | <alfanumerico><numero> | <alfanumerico><letra>
 
 <string> ::= "<alfanumerico>"
 
