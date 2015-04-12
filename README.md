@@ -37,6 +37,7 @@ CONST a=30;
 
 ```
 PUT "string";
+GET variable;
 ```
 
 #### Declaraciones de variables
