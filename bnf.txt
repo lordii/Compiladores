@@ -16,6 +16,6 @@
 
 <variable> ::= <letra> | <alfanumerico>
 
-<declaracionvar> ::= <variable>:<tipo> | <declaracionvar>;<variable>:<tipo>
+<declaracionvar> ::= <variable>:<tipo> | <declaracionvar>,<variable>:<tipo>
 
 <sentenciadeclaracion> ::= DEFVAR<declaracionvar>ENDDEF
