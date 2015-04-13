@@ -1,4 +1,6 @@
-<tipo> ::= int | real | string
+<tipo> ::= int | real | string | boolean
+
+<boleano> :: = True | False
 
 <digito>    ::= 0|1|2|3|4|5|6|7|8|9
 
@@ -16,6 +18,12 @@
 
 <variable> ::= <letra> | <alfanumerico>
 
-<declaracionvar> ::= <variable>:<tipo> | <declaracionvar>,<variable>:<tipo>
+<declaracionvar> ::= <variable>:<tipo> | <declaracionvar>;<variable>:<tipo>
 
 <sentenciadeclaracion> ::= DEFVAR<declaracionvar>ENDDEF
+
+<operacion> ::= <entero><operador><entero> | <real><operador><real> | <string>++<string>
+
+
+
+
