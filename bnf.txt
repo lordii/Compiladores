@@ -23,7 +23,3 @@
 <sentenciadeclaracion> ::= DEFVAR<declaracionvar>ENDDEF
 
 <operacion> ::= <entero><operador><entero> | <real><operador><real> | <string>++<string>
-
-
-
-
