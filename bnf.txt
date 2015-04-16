@@ -2,7 +2,7 @@
 <booleano> ::= True | False
 <digito> ::= 0|1|2|3|4|5|6|7|8|9
 <letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '
-<operador> ::= +|-|/|*
+<operador> ::= +|-|/|*  ESTE CREO QUE NO SIRVE
 <comparadores> ::= >|>=|<|<=|==
 
 <entero> ::= <digito>|<entero><digito>
@@ -11,7 +11,7 @@
 <string> ::= "<alfanumerico>"
 <dato> ::= <entero>|<real>|<string>
 <numero> ::= <entero>|<real>
-<lista> ::= 
+<lista> ::=   FALTA TERMINAR
 
 <identificador> ::= <letra>|<letra><alfanumerico> 
 
@@ -26,12 +26,14 @@
 <termino> ::= <termino>*<factor>|<termino>/<factor>|<factor>
 <factor> ::= <numero>|<identificador>|(<expresion>)
 
+FALTA LO DE LA CONCATENACION DE STRING
+
 <entrada> ::= GET <identificador>;
 <salida> ::= PUT <expresion>;
 
-<comparacion> ::= 
+<comparacion> ::=   FALTA TERMINAR
 <condicion> ::= <booleano>|<comparacion>
-<acciones> ::= 
+<acciones> ::=    FALTA TERMINAR
 
 <repeat> ::= REPEAT <acciones> UNTIL <condicion>;
 <if> ::= IF (<condicion>) THEN <acciones> END
