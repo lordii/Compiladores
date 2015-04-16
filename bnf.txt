@@ -1,25 +1,40 @@
-<tipo> ::= int | real | string | boolean
-
-<boleano> :: = True | False
-
-<digito>    ::= 0|1|2|3|4|5|6|7|8|9
-
+<tipo> ::= int|real|string|boolean
+<booleano> ::= True | False
+<digito> ::= 0|1|2|3|4|5|6|7|8|9
 <letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '
+<operador> ::= +|-|/|*
+<comparadores> ::= >|>=|<|<=|==
 
-<operador> ::= + | - | / | *
-
-<entero> ::= <digito> | <entero><digito>
-
-<alfanumerico> ::= <letra> | <alfanumerico><numero> | <alfanumerico><letra>
-
+<entero> ::= <digito>|<entero><digito>
+<real> ::= <entero>.<entero>|.<entero>|<entero>.
+<alfanumerico> ::= <letra>|<digito>|<alfanumerico><letra>|<alfanumerico><digito>
 <string> ::= "<alfanumerico>"
+<dato> ::= <entero>|<real>|<string>
+<numero> ::= <entero>|<real>
+<lista> ::= 
 
-<real> ::= <entero>.<entero> | .<entero> | <entero>.
+<identificador> ::= <letra>|<letra><alfanumerico> 
 
-<variable> ::= <letra> | <alfanumerico>
+<declaracionvar> ::= <variable>:<tipo> | <declaracionvar>; <variable>:<tipo>
+<sentenciadeclaracionvar> ::= DEFVAR <declaracionvar> ENDDEF
 
-<declaracionvar> ::= <variable>:<tipo> | <declaracionvar>;<variable>:<tipo>
+<definicionconstante> ::= CONST <identificador> = <dato>;
 
-<sentenciadeclaracion> ::= DEFVAR<declaracionvar>ENDDEF
+<asignacion> ::= <identificador> = <>;  FALTA TERMINAR
 
-<operacion> ::= <entero><operador><entero> | <real><operador><real> | <string>++<string>
+<expresion> ::= <expresion>+<termino>|<expresion>-<termino>|<termino>
+<termino> ::= <termino>*<factor>|<termino>/<factor>|<factor>
+<factor> ::= <numero>|<identificador>|(<expresion>)
+
+<entrada> ::= GET <identificador>;
+<salida> ::= PUT <expresion>;
+
+<comparacion> ::= 
+<condicion> ::= <booleano>|<comparacion>
+<acciones> ::= 
+
+<repeat> ::= REPEAT <acciones> UNTIL <condicion>;
+<if> ::= IF (<condicion>) THEN <acciones> END
+
+<unaryif> ::= <identificador> = (<condicion> ? <expresion>; <expresion>)
+<qequal> ::= QEqual(<expresion>,<lista>)
