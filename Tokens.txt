@@ -1,1 +1,46 @@
+*Palabras reservadas
 
+(llevara algo como PROGRAM y ENDPROGRAM? para indicar que empieza y termina el programa?)
+(los bloques los ponemos entre llaves?)
+
+int
+real
+string
+boolean
+True    (aca nose si quieren con mayusculas o minusculas)
+False
+DEFVAR
+ENDEF
+CONST
+GET
+PUT
+REPEAT
+UNTIL
+IF
+THEN
+END
+?
+QEqual (asi? o todo en mayusculas)
+
+*Operadores
+
++
+-
+*
+/
+
+*Comparacion
+==
+<
+>
+<=
+>=
+
+*Asignacion
+=
+
+*Otros
+(
+)
+[
+]
