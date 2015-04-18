@@ -43,3 +43,5 @@ QEqual (asi? o todo en mayusculas)
 ]
 ;
 "
+:
+.
