@@ -1,8 +1,6 @@
 *Palabras reservadas
-
 (llevara algo como PROGRAM y ENDPROGRAM? para indicar que empieza y termina el programa?)
 (los bloques los ponemos entre llaves?)
-
 int
 real
 string
@@ -23,7 +21,6 @@ END
 QEqual (asi? o todo en mayusculas)
 
 *Operadores
-
 +
 -
 *
@@ -44,3 +41,5 @@ QEqual (asi? o todo en mayusculas)
 )
 [
 ]
+;
+"
