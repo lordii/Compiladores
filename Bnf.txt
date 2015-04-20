@@ -19,7 +19,7 @@
 
 <definicionconstante> ::= CONST <identificador> = <dato>;
 
-<asignacion> ::= <identificador> = <>;  FALTA TERMINAR
+<asignacion> ::= <identificador> = <dato>;|<identificador> = <expresion>;
 
 <expresion> ::= <expresion>+<termino>|<expresion>-<termino>|<termino>|<string>++<string>
 <termino> ::= <termino>*<factor>|<termino>/<factor>|<factor>
