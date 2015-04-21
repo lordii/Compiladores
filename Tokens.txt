@@ -25,3 +25,4 @@ Cualquier combinacion de letrs o digitos que se encuentran delimitadas por "
 *Otros
 (   )     [   ]
 ;   :     .   ?
+!
