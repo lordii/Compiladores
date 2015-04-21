@@ -6,9 +6,16 @@ Compiladores - Trabajo Practico
 #### If
 
 ```
-if(condicion)then
+IF (condicion) THEN
     (hacer);
-end
+END
+
+IF (condicion) THEN
+    (hacer);
+ELSE 
+    (hacer);
+END
+
 ```
 
 #### Asiganaciones
@@ -65,6 +72,18 @@ Se puede concatenar con "++" un numero maximo de 2 strings
 REPEAT
 (hacer)
 UNTIL (condicion);
+```
+
+#### UnaryIf
+
+```
+Identificador = (condicion ? exp_ver; exp_fal);
+```
+
+#### QEqual
+
+```
+Identificador = QEqual(expresion, lista);
 ```
 
 #### Comentarios
