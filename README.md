@@ -9,7 +9,7 @@ Compiladores - Trabajo Practico
 IF (condicion) THEN
     (hacer);
 END
-
+-------------------------
 IF (condicion) THEN
     (hacer);
 ELSE 
