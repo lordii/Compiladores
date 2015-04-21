@@ -28,7 +28,7 @@
 <entrada> ::= GET <identificador>;
 <salida> ::= PUT <expresion>;
 
-<comparacion> ::= <booleano>|<dato> <comparadores> <dato>|(<expresion>) <comparadores> (<expresion>)
+<comparacion> ::= <dato> <comparadores> <dato>|(<expresion>) <comparadores> (<expresion>)
                             |(<expresion>) <comparadores> <dato>|<dato> <comparadores> (<expresion>)
 <condicion> ::= <booleano>|<comparacion>
 <accion> ::= <asignacion>|<entrada>|<salida>|<repeat>|<if>|<unaryif>|<qequal>
@@ -38,4 +38,4 @@
 <if> ::= IF (<condicion>) THEN <acciones> END|IF (<condicion>) THEN <acciones> ELSE <acciones> END
 
 <unaryif> ::= <identificador> = (<condicion> ? <expresion>; <expresion>)
-<qequal> ::= <identificador>=QEqual(<expresion>,<lista>)
+<qequal> ::= <identificador> = QEqual(<expresion>,<lista>)
