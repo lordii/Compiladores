@@ -38,4 +38,4 @@
 <if> ::= IF (<condicion>) THEN <acciones> END|IF (<condicion>) THEN <acciones> ELSE <acciones> END
 
 <unaryif> ::= <identificador> = (<condicion> ? <expresion>; <expresion>)
-<qequal> ::= QEqual(<expresion>,<lista>)
+<qequal> ::= <identificador>=QEqual(<expresion>,<lista>)
