@@ -51,8 +51,7 @@ GET variable;
 
 ```
 DEFVAR
-    id:tipo;
-    id:tipo;
+    id:tipo, id:tipo
 ENDDEF
 ```
 
