@@ -6,12 +6,13 @@
 <acciones> ::= <accion>|<accion> <accion>
 <accion> ::= <asignacion>|<definicionconstante>|<entrada>|<salida>|<repeat>|<if>|<unaryif>|<qequal>
 
-<asignacion> ::= <identificador> = <dato>;|<identificador> = <expresion>;
+<asignacion> ::= <identificador> = <dato>;|<identificador> = <expresion>;|<identificador> = <unaryif>;
+                            |<identificador> = <qequal>;
 <definicionconstante> ::= CONST <identificador> = <dato>;
 
 <expresion> ::= <expresion>+<termino>|<expresion>-<termino>|<termino>
 <termino> ::= <termino>*<factor>|<termino>/<factor>|<factor>
-<factor> ::= <numero>|<identificador>|(<expresion>)|<unaryif>|<qequal>|<string>++<string>
+<factor> ::= <numero>|<identificador>|(<expresion>)|<string>++<string>
 
 <repeat> ::= REPEAT <acciones> UNTIL <condicion>;
 <if> ::= IF (<condicion>) THEN <acciones> END|IF (<condicion>) THEN <acciones> ELSE <acciones> END
