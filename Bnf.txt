@@ -1,6 +1,6 @@
 <programa> ::= <sentenciadeclaracionvar><acciones>|<acciones>
 
-<sentenciadeclaracionvar> ::= DEFVAR <declaracionvar> ENDDEF
+<sentenciadeclaracionvar> ::= DEFVAR <declaracionvar> ENDDEF|DEFVAR <declaracionvar> <declaracionvar> ENDDEF
 <declaracionvar> ::= <identificador>:<tipo>|<declaracionvar>, <identificador>:<tipo>
 
 <acciones> ::= <accion>|<accion> <accion>
@@ -21,9 +21,9 @@
 <entrada> ::= GET <identificador>;
 <salida> ::= PUT <expresion>;
 
-<condicion> ::= <booleano>|<comparacion>|<comparacion> AND <comparacion>|<comparacion> OR <comparacion>
+<condicion> ::= <booleano>|<comparacion>|<comparacion> AND <comparacion>|<comparacion> OR <comparacion>|!(<comparacion>)
 <comparacion> ::= <dato> <comparadores> <dato>|(<expresion>) <comparadores> (<expresion>)
-                            |(<expresion>) <comparadores> <dato>|<dato> <comparadores> (<expresion>)
+                       |(<expresion>) <comparadores> <dato>|<dato> <comparadores> (<expresion>)
 
 <identificador> ::= <letra>|<letra><alfanumerico> 
 <alfanumerico> ::= <letra>|<digito>|<alfanumerico><letra>|<alfanumerico><digito>
