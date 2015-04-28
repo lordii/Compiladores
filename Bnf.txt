@@ -16,8 +16,8 @@
 
 <repeat> ::= REPEAT <acciones> UNTIL <condicion>;
 <if> ::= IF (<condicion>) THEN <acciones> END|IF (<condicion>) THEN <acciones> ELSE <acciones> END
-<unaryif> ::= (<condicion> ? <expresion>; <expresion>)
-<qequal> ::= QEqual(<expresion>,<lista>)
+<unaryif> ::= <identificador> = (<condicion> ? <expresion>; <expresion>)
+<qequal> ::= <identificador> = QEqual(<expresion>,<lista>)
 <entrada> ::= GET <identificador>;
 <salida> ::= PUT <expresion>;
 
