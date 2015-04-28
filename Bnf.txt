@@ -4,7 +4,7 @@
 <declaracionvar> ::= <identificador>:<tipo>|<declaracionvar>, <identificador>:<tipo>
 
 <acciones> ::= <accion>|<accion> <accion>
-<accion> ::= <asignacion>|<definicionconstante>|<entrada>|<salida>|<repeat>|<if>|<unaryif>|<qequal>
+<accion> ::= <asignacion>|<definicionconstante>|<entrada>|<salida>|<repeat>|<if>|
 
 <asignacion> ::= <identificador> = <dato>;|<identificador> = <expresion>;|<identificador> = <unaryif>;
                             |<identificador> = <qequal>;
