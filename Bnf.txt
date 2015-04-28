@@ -21,8 +21,8 @@
 <entrada> ::= GET <identificador>;
 <salida> ::= PUT <expresion>;
 
-<condicion> ::= <booleano>|<comparacion>|<comparacion> AND <comparacion>|<comparacion> OR <comparacion>|!(<comparacion>)
-<comparacion> ::= <dato> <comparadores> <dato>|(<expresion>) <comparadores> (<expresion>)
+<condicion> ::= <comparacion>|<comparacion> AND <comparacion>|<comparacion> OR <comparacion>|!(<comparacion>)
+<comparacion> ::= <booleano>|<dato> <comparadores> <dato>|(<expresion>) <comparadores> (<expresion>)
                        |(<expresion>) <comparadores> <dato>|<dato> <comparadores> (<expresion>)
 
 <identificador> ::= <letra>|<letra><alfanumerico> 
