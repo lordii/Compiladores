@@ -36,7 +36,7 @@
 <lista> ::=  []|[<elementoLista>]
 <elementoLista> ::= <expresion>|<elementoLista>,<expresion>
 
-<tipo> ::= int|real|string|boolean
+<tipo> ::= Int|Real|String|Boolean
 <booleano> ::= True | False
 <digito> ::= 0|1|2|3|4|5|6|7|8|9
 <letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '
