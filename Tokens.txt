@@ -1,28 +1,30 @@
 *Palabras reservadas
-int     real      string    boolean     True    (aca nose si quieren con mayusculas o minusculas)
+Int     Real      String    Boolean     True    
 False   DEFVAR    ENDEF     CONST       GET
 PUT     REPEAT    UNTIL     IF          THEN    
-END     QEqual    AND       OR
+ELSE    END       QEqual    AND         OR
 
 *Identificadores  
 Cadena que comienza con una letra y continúa con letras y/o dígitos
+Tamaño maximo 15 caracteres
 
 *Constantes
 Secuencia de digitos pudiendo tener parte decimal
 
 *String
-Cualquier combinacion de letrs o digitos que se encuentran delimitadas por "
+Cualquier combinacion de letras o digitos que se encuentran delimitadas por "
+Tamaño maximo 30 caracteres
 
 *Operadores
 +     -     *     /
 
 *Comparacion
-==    <   >   <=    >=
+==    <   >   <=    >=    <>
 
 *Asignacion
 =
 
 *Otros
 (   )     [   ]
-;   :     .   ?
+;   :     ,   ?
 !
