@@ -1,24 +1,14 @@
 # Compiladores
 Compiladores - Trabajo Practico
 
-## Definicion del lenguaje
+## Definición del lenguaje
 
-#### If
+#### Identificadores
 
-```
-IF (condicion) THEN
-    (hacer);
-END
--------------------------
-IF (condicion) THEN
-    (hacer);
-ELSE 
-    (hacer);
-END
+Los identificadores serán cualquier secuencia de letras y números siempre y cuando empiece por una letra.
+La longitud máxima para un identificador será de 15 caracteres.
 
-```
-
-#### Asiganaciones
+#### Asignaciones
 
 ```
 a=b;
@@ -27,24 +17,17 @@ a=b;
 #### Decimales
 
 ```
-a=0.9;
-a=.9;
-a=9.;
+0.9
+.9
+9.
 ```
 
-####Constantes
+#### Constantes
 
 Usan la palabra reservada CONST
 
 ```
 CONST a=30;
-```
-
-#### In/Out
-
-```
-PUT "string";
-GET variable;
 ```
 
 #### Declaraciones de variables
@@ -58,18 +41,38 @@ DEFVAR
     id:tipo, id:tipo
     id:tipo, id:tipo
 ENDDEF
-
 ```
 
 #### Strings
 
-Maximo 30 caracteres
+Máximo 30 caracteres
 
 ```
 b="string";
 ```
 
-Se puede concatenar con "++" un numero maximo de 2 strings
+Se puede concatenar con "++" un número máximo de 2 strings
+
+#### In/Out
+
+```
+PUT "string";
+GET variable;
+```
+
+#### If
+
+```
+IF (condicion) THEN
+    (hacer);
+END
+-------------------------
+IF (condicion) THEN
+    (hacer);
+ELSE 
+    (hacer);
+END
+```
 
 #### Repeat Until
 
