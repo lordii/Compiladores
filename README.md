@@ -3,6 +3,15 @@ Compiladores - Trabajo Practico
 
 ## Definición del lenguaje
 
+#### Estructura Básica
+
+```
+(Declaración de variables)
+(Acciones)
+-------------------------
+(Acciones)
+```
+
 #### Identificadores
 
 Los identificadores serán cualquier secuencia de letras y números siempre y cuando empiece por una letra.
