@@ -74,13 +74,13 @@ GET variable;
 ```
 IF (condicion) THEN
     (hacer);
-END
+ENDIF
 -------------------------
 IF (condicion) THEN
     (hacer);
 ELSE 
     (hacer);
-END
+ENDIF
 ```
 
 #### Repeat Until
