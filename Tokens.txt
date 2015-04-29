@@ -2,7 +2,7 @@
 Int     Real      String    Boolean     True    
 False   DEFVAR    ENDEF     CONST       GET
 PUT     REPEAT    UNTIL     IF          THEN    
-ELSE    END       QEqual    AND         OR
+ELSE    ENDIF     QEqual    AND         OR
 
 *Identificadores  
 Cadena que comienza con una letra y continúa con letras y/o dígitos
