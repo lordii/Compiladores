@@ -15,7 +15,7 @@
 <factor> ::= <numero>|<identificador>|(<expresion>)|<string>++<string>
 
 <repeat> ::= REPEAT <acciones> UNTIL <condicion>;
-<if> ::= IF <condicion> THEN <acciones> END|IF <condicion> THEN <acciones> ELSE <acciones> END
+<if> ::= IF <condicion> THEN <acciones> ENDIF|IF <condicion> THEN <acciones> ELSE <acciones> ENDIF
 <unaryif> ::= (<condicion> ? <expresion>; <expresion>)
 <qequal> ::= QEqual(<expresion>,<lista>)
 <entrada> ::= GET <identificador>;
