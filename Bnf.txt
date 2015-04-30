@@ -1,7 +1,7 @@
 <programa> ::= <sentenciadeclaracionvar><acciones>|<acciones>
 
 <sentenciadeclaracionvar> ::= DEFVAR <declaracionvar> ENDDEF|DEFVAR <declaracionvar> <declaracionvar> ENDDEF
-<declaracionvar> ::= <identificador>:<tipo>|<declaracionvar>, <identificador>:<tipo>
+<declaracionvar> ::= <identificador>:<tipo>;|<declaracionvar>, <identificador>:<tipo>;
 
 <acciones> ::= <accion>|<accion> <accion>
 <accion> ::= <asignacion>|<definicionconstante>|<entrada>|<salida>|<repeat>|<if>|
