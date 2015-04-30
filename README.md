@@ -43,12 +43,12 @@ CONST a=30;
 
 ```
 DEFVAR
-    id:tipo, id:tipo
+    id:tipo, id:tipo;
 ENDDEF
 -------------------------
 DEFVAR
-    id:tipo, id:tipo
-    id:tipo, id:tipo
+    id:tipo, id:tipo;
+    id:tipo, id:tipo;
 ENDDEF
 ```
 
