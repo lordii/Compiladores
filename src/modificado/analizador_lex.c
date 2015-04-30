@@ -153,15 +153,15 @@ tabla* variable(int indice)
     return act; 
 }
 
-char* palabras_res[]={"DEFVAR","ENDDEF","CONST","Int","Real","String","Boolean","True","False","GET","PUT",
-			"REPEAT","UNTIL","IF","THEN","ELSE","ENDIF","QEqual","AND","OR"};
+char* palabras_res[]={"defvar","enddef","const","int","real","string","boolean","true","false","get","put",
+			"repeat","until","if","then","else","endif","qequal","and","or"};
 			
 int es_palabra_reservada(char* palabra) {
     int es_reservada = 0;
     char palabra_ingresada[100];
     int i = 0;
     strcpy(palabra_ingresada,palabra);
-    while((i<=10) && !es_reservada) {
+    while((i<=19) && !es_reservada) {
         //Comparo palabra caracter a caracter...
         if (strcmp(strlwr(palabra_ingresada),palabras_res[i]) == 0) {
             es_reservada = 1;
