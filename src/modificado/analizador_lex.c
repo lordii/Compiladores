@@ -365,15 +365,21 @@ int op_div() {
 
 //terminar estos, estaban en la matriz pero no definidos
 int inic_igual_igual(){
-	return -1;
+	completa_token(token,caracter);
+    longitud = 1;
+	return 0;
 }
 
 int inic_mayor_igual(){
-	return -1;
+	completa_token(token,caracter);
+    longitud = 1;
+	return -0;
 }
 
 int inic_menor_igual(){
-	return -1;
+	completa_token(token,caracter);
+    longitud = 1;
+	return -0;
 }
 
 int op_neg() {
@@ -709,7 +715,7 @@ int yylex() {
           }           
     }
     
-    if (estado == estado_final) {
+    if (estado == estado_final_retorno) {
         ungetc(caracter,archivo_a_compilar);
         return token_resultante;     
     }
