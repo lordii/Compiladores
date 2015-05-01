@@ -37,8 +37,8 @@ char * get_token_from_yyval(int val) {
 	    case 263 : return "BOOLEAN";
         case 264 : return "TRUE";
 	    case 265 : return "FALSE";
-        case 266 : return "PUT";
-        case 267 : return "GET";
+        case 266 : return "GET";
+        case 267 : return "PUT";
         case 268 : return "REPEAT";
         case 269 : return "UNTIL";
         case 270 : return "IF";
@@ -568,8 +568,8 @@ int get_evento(char c) {
        	case (ES_COMA) : return 11;
        	case (ES_INTERROGACION) : return 12;
        	case (ES_SIGNO_IGUAL) : return 13;
-       	case (ES_SIGNO_MAYOR) : return 14;
-       	case (ES_SIGNO_MENOR) : return 15;
+       	case (ES_SIGNO_MENOR) : return 14;
+       	case (ES_SIGNO_MAYOR) : return 15;
        	case (ES_PARENTESIS_ABIERTO) : return 16;
        	case (ES_PARENTESIS_CERRADO) : return 17;
        	case (ES_CORCHETE_ABIERTO) : return 18; 

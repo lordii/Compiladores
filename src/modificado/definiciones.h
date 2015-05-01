@@ -40,8 +40,8 @@
 #define BOOLEAN 263
 #define TRUE 264
 #define FALSE 265
-#define PUT 266
-#define GET 267
+#define GET 266
+#define PUT 267
 #define REPEAT 268
 #define UNTIL 269
 #define IF 270

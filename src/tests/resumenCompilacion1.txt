@@ -1,0 +1,127 @@
+
+PROGRAMA COMPILADO:
+==================
+
+DEFVAR
+	Int : i;
+	String : a;
+ENDDEF
+
+i = 5 + 1;
+
+IF ( i >= 5) THEN
+	PUT("adios");
+ENDIF
+
+GET(a);
+
+ANALISIS COMPILACION:
+====================
+
+Analizado: --> DEFVAR <--, token resultante --> DEFVAR <-- (yyval = 257), yylex() retorno: --> -1 <--
+
+Analizado: --> Int <--, token resultante --> INT <-- (yyval = 260), yylex() retorno: --> -1 <--
+
+Analizado: --> : <--, token resultante --> DEFINE <-- (yyval = 297), yylex() retorno: --> -1 <--
+
+Analizado: --> i <--, token resultante --> ID <-- (yyval = 280), yylex() retorno: --> 0 <--
+
+Analizado: --> ; <--, token resultante --> FIN_SENTENCIA <-- (yyval = 300), yylex() retorno: --> -1 <--
+
+Analizado: --> String <--, token resultante --> STRING <-- (yyval = 262), yylex() retorno: --> -1 <--
+
+Analizado: --> : <--, token resultante --> DEFINE <-- (yyval = 297), yylex() retorno: --> -1 <--
+
+Analizado: --> a <--, token resultante --> ID <-- (yyval = 280), yylex() retorno: --> 1 <--
+
+Analizado: --> ; <--, token resultante --> FIN_SENTENCIA <-- (yyval = 300), yylex() retorno: --> -1 <--
+
+Analizado: --> ENDDEF <--, token resultante --> ENDDEF <-- (yyval = 258), yylex() retorno: --> -1 <--
+
+Analizado: --> i <--, token resultante --> ID <-- (yyval = 280), yylex() retorno: --> 0 <--
+
+Analizado: --> =  <--, token resultante --> ASIGNACION <-- (yyval = 285), yylex() retorno: --> -1 <--
+
+Analizado: --> 5 <--, token resultante --> CTE_ENTERA <-- (yyval = 278), yylex() retorno: --> 2 <--
+
+Analizado: --> + <--, token resultante --> MAS <-- (yyval = 281), yylex() retorno: --> -1 <--
+
+Analizado: --> 1 <--, token resultante --> CTE_ENTERA <-- (yyval = 278), yylex() retorno: --> 3 <--
+
+Analizado: --> ; <--, token resultante --> FIN_SENTENCIA <-- (yyval = 300), yylex() retorno: --> -1 <--
+
+Analizado: --> IF <--, token resultante --> IF <-- (yyval = 270), yylex() retorno: --> -1 <--
+
+Analizado: --> ( <--, token resultante --> PAR_ABRE <-- (yyval = 293), yylex() retorno: --> -1 <--
+
+Analizado: --> i <--, token resultante --> ID <-- (yyval = 280), yylex() retorno: --> 0 <--
+
+Analizado: --> >= <--, token resultante --> MAYOR_IGUAL <-- (yyval = 290), yylex() retorno: --> -1 <--
+
+Analizado: --> 5 <--, token resultante --> CTE_ENTERA <-- (yyval = 278), yylex() retorno: --> 2 <--
+
+Analizado: --> ) <--, token resultante --> PAR_CIERRA <-- (yyval = 294), yylex() retorno: --> -1 <--
+
+Analizado: --> THEN <--, token resultante --> THEN <-- (yyval = 271), yylex() retorno: --> -1 <--
+
+Analizado: --> PUT <--, token resultante --> PUT <-- (yyval = 267), yylex() retorno: --> -1 <--
+
+Analizado: --> ( <--, token resultante --> PAR_ABRE <-- (yyval = 293), yylex() retorno: --> -1 <--
+
+Analizado: --> "adios" <--, token resultante --> CTE_STRING <-- (yyval = 279), yylex() retorno: --> 4 <--
+
+Analizado: --> ) <--, token resultante --> PAR_CIERRA <-- (yyval = 294), yylex() retorno: --> -1 <--
+
+Analizado: --> ; <--, token resultante --> FIN_SENTENCIA <-- (yyval = 300), yylex() retorno: --> -1 <--
+
+Analizado: --> ENDIF <--, token resultante --> ENDIF <-- (yyval = 273), yylex() retorno: --> -1 <--
+
+Analizado: --> GET <--, token resultante --> GET <-- (yyval = 266), yylex() retorno: --> -1 <--
+
+Analizado: --> ( <--, token resultante --> PAR_ABRE <-- (yyval = 293), yylex() retorno: --> -1 <--
+
+Analizado: --> a <--, token resultante --> ID <-- (yyval = 280), yylex() retorno: --> 1 <--
+
+Analizado: --> ) <--, token resultante --> PAR_CIERRA <-- (yyval = 294), yylex() retorno: --> -1 <--
+
+Analizado: --> ; <--, token resultante --> FIN_SENTENCIA <-- (yyval = 300), yylex() retorno: --> -1 <--
+
+
+TABLA DE SIMBOLOS:
+=================
+
+Token: "adios"
+Tipo de token: CONSTANTE
+Tipo: CTE_STRING
+Valor: "adios"
+Longitud: 7
+Numero: 4
+
+Token: 1
+Tipo de token: CONSTANTE
+Tipo: CTE_ENTERA
+Valor: 1
+Longitud: 1
+Numero: 3
+
+Token: 5
+Tipo de token: CONSTANTE
+Tipo: CTE_ENTERA
+Valor: 5
+Longitud: 1
+Numero: 2
+
+Token: a
+Tipo de token: ID
+Tipo: NO DETERMINADO
+Valor: a
+Longitud: 1
+Numero: 1
+
+Token: i
+Tipo de token: ID
+Tipo: NO DETERMINADO
+Valor: i
+Longitud: 1
+Numero: 0
+
