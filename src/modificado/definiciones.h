@@ -26,6 +26,8 @@
 #define FIN_DE_COMPILACION -999
 
 #define LIMITE_IDENTIFICADOR 25
+#define LIMITE_ENTEROS 65535
+#define LONGITUD_STRING 30
 
 /********   TOKENS  *********/
 
