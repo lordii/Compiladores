@@ -1,0 +1,93 @@
+
+PROGRAMA:
+=========
+
+/!esto es un comentario
+	/! ESTO ESTA BIEN!/
+	
+!/
+
+DEFVAR
+	Int:a;
+ENDDEF
+
+a = 3;
+IF (a == 3) THEN
+	PUT("HOLA MUNDO!");
+ENDIF
+
+
+ANALISIS DE TOKEN:
+=================
+
+Analizado: --> DEFVAR <--, token resultante --> DEFVAR <-- (yyval = 257), yylex() retorno: --> -1 <--
+
+Analizado: --> Int <--, token resultante --> INT <-- (yyval = 260), yylex() retorno: --> -1 <--
+
+Analizado: --> : <--, token resultante --> DEFINE <-- (yyval = 295), yylex() retorno: --> -1 <--
+
+Analizado: --> a <--, token resultante --> ID <-- (yyval = 278), yylex() retorno: --> 0 <--
+
+Analizado: --> ; <--, token resultante --> FIN_SENTENCIA <-- (yyval = 298), yylex() retorno: --> -1 <--
+
+Analizado: --> ENDDEF <--, token resultante --> ENDDEF <-- (yyval = 258), yylex() retorno: --> -1 <--
+
+Analizado: --> a <--, token resultante --> ID <-- (yyval = 278), yylex() retorno: --> 0 <--
+
+Analizado: --> = <--, token resultante --> ASIGNACION <-- (yyval = 283), yylex() retorno: --> -1 <--
+
+Analizado: --> 3 <--, token resultante --> CTE_ENTERA <-- (yyval = 276), yylex() retorno: --> 1 <--
+
+Analizado: --> ; <--, token resultante --> FIN_SENTENCIA <-- (yyval = 298), yylex() retorno: --> -1 <--
+
+Analizado: --> IF <--, token resultante --> IF <-- (yyval = 268), yylex() retorno: --> -1 <--
+
+Analizado: --> ( <--, token resultante --> PAR_ABRE <-- (yyval = 291), yylex() retorno: --> -1 <--
+
+Analizado: --> a <--, token resultante --> ID <-- (yyval = 278), yylex() retorno: --> 0 <--
+
+Analizado: --> == <--, token resultante --> IGUAL <-- (yyval = 284), yylex() retorno: --> -1 <--
+
+Analizado: --> 3 <--, token resultante --> CTE_ENTERA <-- (yyval = 276), yylex() retorno: --> 1 <--
+
+Analizado: --> ) <--, token resultante --> PAR_CIERRA <-- (yyval = 292), yylex() retorno: --> -1 <--
+
+Analizado: --> THEN <--, token resultante --> THEN <-- (yyval = 269), yylex() retorno: --> -1 <--
+
+Analizado: --> PUT <--, token resultante --> PUT <-- (yyval = 265), yylex() retorno: --> -1 <--
+
+Analizado: --> ( <--, token resultante --> PAR_ABRE <-- (yyval = 291), yylex() retorno: --> -1 <--
+
+Analizado: --> "HOLA MUNDO!" <--, token resultante --> CTE_STRING <-- (yyval = 277), yylex() retorno: --> 2 <--
+
+Analizado: --> ) <--, token resultante --> PAR_CIERRA <-- (yyval = 292), yylex() retorno: --> -1 <--
+
+Analizado: --> ; <--, token resultante --> FIN_SENTENCIA <-- (yyval = 298), yylex() retorno: --> -1 <--
+
+Analizado: --> ENDIF <--, token resultante --> ENDIF <-- (yyval = 271), yylex() retorno: --> -1 <--
+
+
+TABLA DE SIMBOLOS:
+=================
+
+Token: "HOLA MUNDO!"
+Tipo de token: CONSTANTE
+Tipo: CTE_STRING
+Valor: "HOLA MUNDO!"
+Longitud: 13
+Numero: 2
+
+Token: 3
+Tipo de token: CONSTANTE
+Tipo: CTE_ENTERA
+Valor: 3
+Longitud: 1
+Numero: 1
+
+Token: a
+Tipo de token: ID
+Tipo: NO DETERMINADO
+Valor: a
+Longitud: 1
+Numero: 0
+
