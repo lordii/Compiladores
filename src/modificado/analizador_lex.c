@@ -197,12 +197,13 @@ int inic_cte() {
 int cont_cte() {
     completa_token(token,caracter);
     cte_int = cte_int * 10 + atoi(&caracter);
-    if (cte_int > 65535) {
-       	printf("\nError: Entero demasiado largo. (No puede superar 65535)\n");
+    if ((cte_int < -65535)||(cte_int > 65535)) {
+       	printf("\nError: Entero demasiado largo. (No puede estar fuera de -65535 y 65535)\n");
        	return ERROR;
-    }
-    longitud++;           
-    return 0;
+    } else {
+		longitud++;           
+		return 0;	
+	}
 }
 
 int fin_cte() { 
@@ -259,21 +260,21 @@ int inic_str() {
 }
 
 int cont_str() { 
-    if (longitud + 1 > 30) {
-	printf("\nError: String demasiado largo. (Capacidad maxima: 30 caracteres)\n");
-        return ERROR;
-    } else {
+    //if (longitud + 1 > LONGITUD_STRING) {
+		//printf("\nError: String demasiado largo. (Capacidad maxima: %i caracteres)\n", LONGITUD_STRING);
+        //return ERROR;
+    //} else {
        	completa_token(token,caracter);
        	longitud++;
        	return 0;
-    }
+    //}
 }
 
 int fin_str() {
 	completa_token(token,caracter);
 	longitud++;
-	if (longitud + 1 > 30) {
-		printf("\nError: String demasiado largo. (Capacidad maxima: 30 caracteres)\n");
+	if (longitud + 1 > LONGITUD_STRING) {
+		printf("\nError: String demasiado largo. (Capacidad maxima: %i caracteres)\n", LONGITUD_STRING);
         return ERROR;
     } else {
 	    int pos_en_tabla = existe_en_tabla_simbolos(token);
@@ -304,7 +305,7 @@ int fin_id() {
     int pos_en_tabla;
     
     if (longitud > LIMITE_IDENTIFICADOR) {
-        printf("\nIdentificador: \"%s\" demasiado largo!!, solo se admiten identificadores de %i caracteres como maximo.\n",token,LIMITE_IDENTIFICADOR);
+        printf("\nError: Identificador \"%s\" demasiado largo. (Longitud maxima: %i caracteres)\n",token,LIMITE_IDENTIFICADOR);
         return ERROR;
     }
     
@@ -516,9 +517,9 @@ int matriz_nvo_estado[18][21] = {
 				 {9,9,9,9,9,9,9,11,10,9,9,9,9,9,9,9,9,9,9,9,9},
 				 {9,9,9,9,9,9,9,90,10,9,9,9,9,9,9,9,9,9,9,9,9},
 				 {9,9,9,9,9,9,9,11,12,9,9,9,9,9,9,9,9,9,9,9,9},
-				 {12,12,12,12,12,12,12,12,13,12,12,12,12,12,12,12,12,12,12,12,12},
+				 {12,12,12,12,12,12,12,16,13,12,12,12,12,12,12,12,12,12,12,12,12},
 				 {12,12,12,12,12,12,12,14,13,12,12,12,12,12,12,12,12,12,12,12,12},
-				 {14,14,14,14,14,14,14,14,15,14,14,14,14,14,14,14,14,14,14,14,14},
+				 {14,14,14,14,14,14,14,17,15,14,14,14,14,14,14,14,14,14,14,14,14},
 				 {14,14,14,14,14,14,14,90,15,14,14,14,14,14,14,14,14,14,14,14,14},
 				 {12,12,12,12,12,12,12,12,-1,12,12,12,12,12,12,12,12,12,12,12,12},
 				 {14,14,14,14,14,14,14,14,-1,14,14,14,14,14,14,14,14,14,14,14,14}
@@ -634,7 +635,6 @@ int main (int argc, char *argv[]) {
 
     
 	if (archivo_a_compilar == NULL) {
-		//sentencia return vacia?
 		printf("\nEl archivo indicado no existe!\n");
        	return -1;
     }
@@ -660,16 +660,20 @@ int main (int argc, char *argv[]) {
         inicializa_token(token);
         result = yylex();
 
+		if (result == ERROR) {
+			fprintf (archivoResumenCompilacion, "COMPILACION CANCELADA");
+            break;
+		}
    		if (result != FIN_DE_COMPILACION)
 			fprintf (archivoResumenCompilacion, "Analizado: --> %s <--, token resultante --> %s <-- (yyval = %i), yylex() retorno: --> %i <--\n\n",token,get_token_from_yyval(yyval),yyval,result);
-        if (result == ERROR)
-            break;
     }
      
-    imprimir_tabla_de_simbolos(archivoResumenCompilacion);
+	if (result != ERROR) {
+		imprimir_tabla_de_simbolos(archivoResumenCompilacion);
+		printf ( "\nCompilacion finalizada!\n" );
+	}
+	
     fclose(archivoResumenCompilacion);
-    
-    printf ( "\nCompilacion finalizada!\n" );
     printf ( "\n\nPresione ENTER para finalizar...\n" );
     fgets (nombreArchivo, 150, stdin);
 	
@@ -714,9 +718,9 @@ int yylex() {
         }
         estado = matriz_nvo_estado[estado][columna];
           
-        if (estado == -1) {
-            printf ("\nError de sintaxis!!\n");
-            return ERROR;
+        if ((estado == -1)||(token_resultante == ERROR)) {
+			return ERROR;
+			break;
         }           
     }
     
