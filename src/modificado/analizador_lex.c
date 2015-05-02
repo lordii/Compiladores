@@ -35,44 +35,42 @@ char * get_token_from_yyval(int val) {
 	    case 261 : return "REAL";
         case 262 : return "STRING";
 	    case 263 : return "BOOLEAN";
-        case 264 : return "TRUE";
-	    case 265 : return "FALSE";
-        case 266 : return "GET";
-        case 267 : return "PUT";
-        case 268 : return "REPEAT";
-        case 269 : return "UNTIL";
-        case 270 : return "IF";
-        case 271 : return "THEN";
-        case 272 : return "ELSE";
-        case 273 : return "ENDIF";
-        case 274 : return "QEQUAL";
-        case 275 : return "AND";
-        case 276 : return "OR";
-        case 277 : return "CTE_REAL";
-        case 278 : return "CTE_ENTERA";
-        case 279 : return "CTE_STRING";
-        case 280 : return "ID";
-        case 281 : return "MAS";
-        case 282 : return "MENOS";
-        case 283 : return "POR";
-        case 284 : return "DIVIDIDO";
-        case 285 : return "ASIGNACION";
-        case 286 : return "IGUAL";
-        case 287 : return "MENOR";
-        case 288 : return "MENOR_IGUAL";
-        case 289 : return "MAYOR";
-        case 290 : return "MAYOR_IGUAL";
-        case 291 : return "DISTINTO";
-        case 292 : return "NOT";
-        case 293 : return "PAR_ABRE";
-        case 294 : return "PAR_CIERRA";
-        case 295 : return "COR_ABRE";
-        case 296 : return "COR_CIERRA";
-        case 297 : return "DEFINE";
-        case 298 : return "SEPARDOR_COMA";
-	    case 299 : return "SIG_UNARYIF";
-        case 300 : return "FIN_SENTENCIA";
-        case 301 : return "SEPARADOR";
+        case 264 : return "GET";
+        case 265 : return "PUT";
+        case 266 : return "REPEAT";
+        case 267 : return "UNTIL";
+        case 268 : return "IF";
+        case 269 : return "THEN";
+        case 270 : return "ELSE";
+        case 271 : return "ENDIF";
+        case 272 : return "QEQUAL";
+        case 273 : return "AND";
+        case 274 : return "OR";
+        case 275 : return "CTE_REAL";
+        case 276 : return "CTE_ENTERA";
+        case 277 : return "CTE_STRING";
+        case 278 : return "ID";
+        case 279 : return "MAS";
+        case 280 : return "MENOS";
+        case 281 : return "POR";
+        case 282 : return "DIVIDIDO";
+        case 283 : return "ASIGNACION";
+        case 284 : return "IGUAL";
+        case 285 : return "MENOR";
+        case 286 : return "MENOR_IGUAL";
+        case 287 : return "MAYOR";
+        case 288 : return "MAYOR_IGUAL";
+        case 289 : return "DISTINTO";
+        case 290 : return "NOT";
+        case 291 : return "PAR_ABRE";
+        case 292 : return "PAR_CIERRA";
+        case 293 : return "COR_ABRE";
+        case 294 : return "COR_CIERRA";
+        case 295 : return "DEFINE";
+        case 296 : return "SEPARDOR_COMA";
+	    case 297 : return "SIG_UNARYIF";
+        case 298 : return "FIN_SENTENCIA";
+        case 299 : return "SEPARADOR";
         	      
         default : return "TOKEN_NO_RECONOCIDO";                   
     }
@@ -478,6 +476,7 @@ int separador() {
 }
 
 int inic_com() {
+	agr_op();
     return -2; // VERRRRR!! que devuelvo?? 0 es token OJO!!
 }
 
@@ -654,7 +653,7 @@ int main (int argc, char *argv[]) {
 			fprintf (archivoResumenAnalisis, "ANALISIS CANCELADO");
             break;
 		}
-   		if (result != FIN_DE_COMPILACION)
+   		if (result != FIN_DE_COMPILACION && result != COMENTARIO)
 			fprintf (archivoResumenAnalisis, "Analizado: --> %s <--, token resultante --> %s <-- (yyval = %i), yylex() retorno: --> %i <--\n\n",token,get_token_from_yyval(yyval),yyval,result);
     }
      
