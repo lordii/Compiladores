@@ -260,14 +260,9 @@ int inic_str() {
 }
 
 int cont_str() { 
-    //if (longitud + 1 > LONGITUD_STRING) {
-		//printf("\nError: String demasiado largo. (Capacidad maxima: %i caracteres)\n", LONGITUD_STRING);
-        //return ERROR;
-    //} else {
-       	completa_token(token,caracter);
-       	longitud++;
-       	return 0;
-    //}
+    completa_token(token,caracter);
+    longitud++;
+    return 0;
 }
 
 int fin_str() {
@@ -324,8 +319,6 @@ int fin_id() {
             pos_en_tabla = insertar_en_tabla_simbolos(token, tipo,"NO DETERMINADO",token,longitud);
         }       
     } else {
-        //Si esta en la tabla de simbolos
-        //Se que es un id porque las palabras reservadas no van a la tabla de simbolos...
 	    yyval = ID; 
 	}
 	
@@ -392,13 +385,11 @@ int op_neg() {
 }
 
 int op_asig() {
-	agr_op();
     yyval = ASIGNACION;
     return -1;
 }
 
 int op_menor() {
-	agr_op();
     yyval = MENOR;
     return -1;
 }
@@ -410,7 +401,6 @@ int op_menor_igual() {
 }
 
 int op_mayor() {
-	agr_op();
     yyval = MAYOR;
     return -1;
 }
@@ -535,7 +525,7 @@ int (* matriz_punteros[18][21])(void) = {
 					 {op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor_igual,op_menor,op_distinto,op_menor,op_menor,op_menor,op_menor,op_menor},
 					 {op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor_igual,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor},
 					 {op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_igual_igual,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig},
-					 {op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,NULL,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div},
+					 {op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,inic_com,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div},
 					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
@@ -624,11 +614,11 @@ FILE * archivo_a_compilar;
 
 int main (int argc, char *argv[]) {    
     int result;
-    FILE * archivoResumenCompilacion;
+    FILE * archivoResumenAnalisis;
     char * nombreArchivo = argv[1];
     char caracterLeido;
 
-    printf ( "\nIniciando compilacion de archivo: %s...\n",nombreArchivo );
+    printf ( "\nIniciando analisis de archivo: %s...\n",nombreArchivo );
 
     //Imprimo el archivo a compilar en el resumen...
     archivo_a_compilar = fopen (nombreArchivo, "r");
@@ -639,20 +629,20 @@ int main (int argc, char *argv[]) {
        	return -1;
     }
    
-    archivoResumenCompilacion = fopen("./resumenCompilacion.txt","w+t");
+    archivoResumenAnalisis = fopen("./resumenAnalisis.txt","w+t");
 	
-    fprintf(archivoResumenCompilacion,"\nPROGRAMA COMPILADO:\n==================\n\n");
+    fprintf(archivoResumenAnalisis,"\nPROGRAMA:\n=========\n\n");
 	
     while (feof(archivo_a_compilar) == 0) {
         caracterLeido = fgetc(archivo_a_compilar);
         if (isspace(caracterLeido) | isprint(caracterLeido)) {
-            fprintf(archivoResumenCompilacion,"%c",caracterLeido);
+            fprintf(archivoResumenAnalisis,"%c",caracterLeido);
         }
 	}
     
-	fprintf(archivoResumenCompilacion,"\n\nANALISIS COMPILACION:\n====================\n\n"); 
+	fprintf(archivoResumenAnalisis,"\n\nANALISIS DE TOKEN:\n=================\n\n"); 
     
-    //Reabro el archivo para compilar...
+    //Reabro el archivo para analisis...
     fclose (archivo_a_compilar);
     archivo_a_compilar = fopen (nombreArchivo, "r");
    
@@ -661,19 +651,19 @@ int main (int argc, char *argv[]) {
         result = yylex();
 
 		if (result == ERROR) {
-			fprintf (archivoResumenCompilacion, "COMPILACION CANCELADA");
+			fprintf (archivoResumenAnalisis, "ANALISIS CANCELADO");
             break;
 		}
    		if (result != FIN_DE_COMPILACION)
-			fprintf (archivoResumenCompilacion, "Analizado: --> %s <--, token resultante --> %s <-- (yyval = %i), yylex() retorno: --> %i <--\n\n",token,get_token_from_yyval(yyval),yyval,result);
+			fprintf (archivoResumenAnalisis, "Analizado: --> %s <--, token resultante --> %s <-- (yyval = %i), yylex() retorno: --> %i <--\n\n",token,get_token_from_yyval(yyval),yyval,result);
     }
      
 	if (result != ERROR) {
-		imprimir_tabla_de_simbolos(archivoResumenCompilacion);
-		printf ( "\nCompilacion finalizada!\n" );
+		imprimir_tabla_de_simbolos(archivoResumenAnalisis);
+		printf ( "\nAnalisis finalizado!\n" );
 	}
 	
-    fclose(archivoResumenCompilacion);
+    fclose(archivoResumenAnalisis);
     printf ( "\n\nPresione ENTER para finalizar...\n" );
     fgets (nombreArchivo, 150, stdin);
 	
