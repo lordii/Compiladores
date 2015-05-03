@@ -3,16 +3,15 @@
 <sentenciadeclaracionvar> ::= DEFVAR <declaracionvar> ENDDEF|DEFVAR <declaracionvar> <declaracionvar> ENDDEF
 <declaracionvar> ::= <identificador>:<tipo>;|<declaracionvar>, <identificador>:<tipo>;
 
-<acciones> ::= <accion>|<accion> <accion>
-<accion> ::= <asignacion>|<definicionconstante>|<entrada>|<salida>|<repeat>|<if>|
+<acciones> ::= <accion>|<acciones> <accion>
+<accion> ::= <asignacion>|<definicionconstante>|<entrada>|<salida>|<repeat>|<if>
 
-<asignacion> ::= <identificador> = <dato>;|<identificador> = <expresion>;|<identificador> = <unaryif>;
-                            |<identificador> = <qequal>;
+<asignacion> ::= <identificador> = <expresion>;
 <definicionconstante> ::= CONST <identificador> = <dato>;
 
 <expresion> ::= <expresion>+<termino>|<expresion>-<termino>|<termino>
 <termino> ::= <termino>*<factor>|<termino>/<factor>|<factor>
-<factor> ::= <numero>|<identificador>|(<expresion>)|<string>++<string>
+<factor> ::= <identificador>|(<expresion>)|<cte_string>++<cte_string>|<unaryif>|<qeuqual>|<dato>|<cte_string>
 
 <repeat> ::= REPEAT <acciones> UNTIL <condicion>;
 <if> ::= IF <condicion> THEN <acciones> ENDIF|IF <condicion> THEN <acciones> ELSE <acciones> ENDIF
@@ -22,22 +21,21 @@
 <salida> ::= PUT <expresion>;
 
 <condicion> ::= <comparacion>|<comparacion> AND <comparacion>|<comparacion> OR <comparacion>|!(<comparacion>)
-<comparacion> ::= <booleano>|<dato> <comparadores> <dato>|(<expresion>) <comparadores> (<expresion>)
-                       |(<expresion>) <comparadores> <dato>|<dato> <comparadores> (<expresion>)
+<comparacion> ::= <expresion> < <expresion>|<expresion> > <expresion>|<expresion> <= <expresion>  
+                            |<expresion> >= <expresion>|<expresion> <> <expresion>
+
+<comentarios> ::= /!<alfanumerico>!/|/!<alfanumerico>/!<alfanumerico>!/<alfanumerico>!/
 
 <identificador> ::= <letra>|<letra><alfanumerico> 
 <alfanumerico> ::= <letra>|<digito>|<alfanumerico><letra>|<alfanumerico><digito>
-<entero> ::= <digito>|<entero><digito>
-<real> ::= <entero>.<entero>|.<entero>|<entero>.
-<string> ::= "<alfanumerico>"
-<dato> ::= <entero>|<real>|<string>
-<numero> ::= <entero>|<real>
+<cte_entero> ::= <digito>|<cte_entero><digito>
+<cte_real> ::= <cte_entero>.<cte_entero>|.<cte_entero>|<cte_entero>.
+<cte_string> ::= "<alfanumerico>"
+<dato> ::= <cte_entero>|<cte_real>|<cte_string>
 
-<lista> ::=  []|[<elementoLista>]
+<lista> ::=  [<elementoLista>]
 <elementoLista> ::= <expresion>|<elementoLista>,<expresion>
 
-<tipo> ::= Int|Real|String|Boolean
-<booleano> ::= True | False
+<tipo> ::= Int|Real|String
 <digito> ::= 0|1|2|3|4|5|6|7|8|9
-<letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '
-<comparadores> ::= >|>=|<|<=|==|<>
+<letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '|''
