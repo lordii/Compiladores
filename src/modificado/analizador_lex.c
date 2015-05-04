@@ -28,49 +28,48 @@ void imprime_token(char tok[100]) {
 
 char * get_token_from_yyval(int val) {
 	switch (val) {
-		case 257 : return "DEFVAR";
-	    case 258 : return "ENDDEF";
-	    case 259 : return "CONST";
+	case 257 : return "DEFVAR";
+	case 258 : return "ENDDEF";
+	case 259 : return "CONST";
         case 260 : return "INT";
-	    case 261 : return "REAL";
+	case 261 : return "REAL";
         case 262 : return "STRING";
-	    case 263 : return "BOOLEAN";
-        case 264 : return "GET";
-        case 265 : return "PUT";
-        case 266 : return "REPEAT";
-        case 267 : return "UNTIL";
-        case 268 : return "IF";
-        case 269 : return "THEN";
-        case 270 : return "ELSE";
-        case 271 : return "ENDIF";
-        case 272 : return "QEQUAL";
-        case 273 : return "AND";
-        case 274 : return "OR";
-        case 275 : return "CTE_REAL";
-        case 276 : return "CTE_ENTERA";
-        case 277 : return "CTE_STRING";
-        case 278 : return "ID";
-        case 279 : return "MAS";
-        case 280 : return "MENOS";
-        case 281 : return "POR";
-        case 282 : return "DIVIDIDO";
-        case 283 : return "ASIGNACION";
-        case 284 : return "IGUAL";
-        case 285 : return "MENOR";
-        case 286 : return "MENOR_IGUAL";
-        case 287 : return "MAYOR";
-        case 288 : return "MAYOR_IGUAL";
-        case 289 : return "DISTINTO";
-        case 290 : return "NOT";
-        case 291 : return "PAR_ABRE";
-        case 292 : return "PAR_CIERRA";
-        case 293 : return "COR_ABRE";
-        case 294 : return "COR_CIERRA";
-        case 295 : return "DEFINE";
-        case 296 : return "SEPARDOR_COMA";
-	    case 297 : return "SIG_UNARYIF";
-        case 298 : return "FIN_SENTENCIA";
-        case 299 : return "SEPARADOR";
+        case 263 : return "GET";
+        case 264 : return "PUT";
+        case 265 : return "REPEAT";
+        case 266 : return "UNTIL";
+        case 267 : return "IF";
+        case 268 : return "THEN";
+        case 269 : return "ELSE";
+        case 270 : return "ENDIF";
+        case 271 : return "QEQUAL";
+        case 272 : return "AND";
+        case 273 : return "OR";
+        case 274 : return "CTE_REAL";
+        case 275 : return "CTE_ENTERA";
+        case 276 : return "CTE_STRING";
+        case 277 : return "ID";
+        case 278 : return "MAS";
+        case 279 : return "MENOS";
+        case 280 : return "POR";
+        case 281 : return "DIVIDIDO";
+        case 282 : return "ASIGNACION";
+        case 283 : return "IGUAL";
+        case 284 : return "MENOR";
+        case 285 : return "MENOR_IGUAL";
+        case 286 : return "MAYOR";
+        case 287 : return "MAYOR_IGUAL";
+        case 288 : return "DISTINTO";
+        case 289 : return "NOT";
+        case 290 : return "PAR_ABRE";
+        case 291 : return "PAR_CIERRA";
+        case 292 : return "COR_ABRE";
+        case 293 : return "COR_CIERRA";
+        case 294 : return "DEFINE";
+        case 295 : return "SEPARDOR_COMA";
+	case 296 : return "SIG_UNARYIF";
+        case 297 : return "FIN_SENTENCIA";
+        case 298 : return "SEPARADOR";
         	      
         default : return "TOKEN_NO_RECONOCIDO";                   
     }
@@ -144,7 +143,7 @@ tabla* variable(int indice) {
 	return act; 
 }
 
-char* palabras_res[]={"DEFVAR","ENDDEF","CONST","Int","Real","String","Boolean","GET","PUT",
+char* palabras_res[]={"DEFVAR","ENDDEF","CONST","Int","Real","String","GET","PUT",
 		      "REPEAT","UNTIL","IF","THEN","ELSE","ENDIF","QEqual","AND","OR"};
 			
 int es_palabra_reservada(char* palabra) {
@@ -152,7 +151,7 @@ int es_palabra_reservada(char* palabra) {
 	char palabra_ingresada[100];
 	int i = 0;
 	strcpy(palabra_ingresada,palabra);
-	while((i<=17) && !es_reservada) {
+	while((i<=16) && !es_reservada) {
         //Comparo palabra caracter a caracter...
 		if (strcmp(palabra_ingresada,palabras_res[i]) == 0) {
 		    es_reservada = 1;
@@ -181,7 +180,7 @@ int contiene_punto(char* palabra) {
 }
 
 int error_com() {
-	printf("\nError: Se ha superado la cantidad de niveles anidados de comentarios permitidos.\n");
+    printf("\nError: Se ha superado la cantidad de niveles anidados de comentarios permitidos.\n");
     return ERROR;
 }
 
@@ -199,9 +198,9 @@ int cont_cte() {
        	printf("\nError: Entero demasiado largo. (No puede estar fuera de -65535 y 65535)\n");
        	return ERROR;
     } else {
-		longitud++;           
-		return 0;	
-	}
+	longitud++;           
+	return 0;	
+    }
 }
 
 int fin_cte() { 
@@ -546,7 +545,7 @@ int get_evento(char c) {
     switch (resultado) {            
        	case (ES_LETRA) : return 0;
        	case (ES_DIGITO) : return 1;
-	    case (ES_COMILLA) : return 2;
+	case (ES_COMILLA) : return 2;
        	case (ES_PUNTO) : return 3;
        	case (ES_SIGNO_MAS) : return 4;
        	case (ES_SIGNO_MENOS) : return 5;
@@ -583,28 +582,28 @@ int analiza_caracter(char c) {
            		if (ispunct(c)) {
            			switch (c) {
                    		case '\"': return ES_COMILLA;
-                        case '.' : return ES_PUNTO;
-                        case '!' : return ES_SIGNO_EXCALAMACION;
-                        case '=' : return ES_SIGNO_IGUAL;
-			            case '>' : return ES_SIGNO_MAYOR;
-                        case '<' : return ES_SIGNO_MENOR;
-                        case '+' : return ES_SIGNO_MAS;
-                        case '-' : return ES_SIGNO_MENOS;
-                        case '*' : return ES_SIGNO_POR;
-                        case '/' : return ES_SIGNO_DIVIDIDO;
-                        case '(' : return ES_PARENTESIS_ABIERTO;
-                        case ')' : return ES_PARENTESIS_CERRADO;
-                        case '[' : return ES_CORCHETE_ABIERTO;
-                        case ']' : return ES_CORCHETE_CERRADO;
-                        case ';' : return ES_PUNTO_Y_COMA;
-                        case ':' : return ES_DOS_PUNTOS;
-                        case ',' : return ES_COMA;
-                        case '?' : return ES_INTERROGACION;
+                        	case '.' : return ES_PUNTO;
+                        	case '!' : return ES_SIGNO_EXCALAMACION;
+                        	case '=' : return ES_SIGNO_IGUAL;
+			        case '>' : return ES_SIGNO_MAYOR;
+                        	case '<' : return ES_SIGNO_MENOR;
+                        	case '+' : return ES_SIGNO_MAS;
+                        	case '-' : return ES_SIGNO_MENOS;
+                        	case '*' : return ES_SIGNO_POR;
+                        	case '/' : return ES_SIGNO_DIVIDIDO;
+                        	case '(' : return ES_PARENTESIS_ABIERTO;
+                        	case ')' : return ES_PARENTESIS_CERRADO;
+                        	case '[' : return ES_CORCHETE_ABIERTO;
+                        	case ']' : return ES_CORCHETE_CERRADO;
+                        	case ';' : return ES_PUNTO_Y_COMA;
+                        	case ':' : return ES_DOS_PUNTOS;
+                		case ',' : return ES_COMA;
+                        	case '?' : return ES_INTERROGACION;
 
-                        default : return ERROR;                      
-                    }
-                } 
-            }
+                        	default : return ERROR;                      
+                    		}
+                	} 
+            	}
         }
     }
 }
