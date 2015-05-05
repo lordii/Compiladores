@@ -6,36 +6,45 @@
 <acciones> ::= <accion>|<acciones> <accion>
 <accion> ::= <asignacion>|<definicionconstante>|<entrada>|<salida>|<repeat>|<if>
 
-<asignacion> ::= <identificador> = <expresion>;
+<asignacion> ::= <identificador> = <expresion>;|<identificador> = <expresion_str>;
 <definicionconstante> ::= CONST <identificador> = <dato>;
 
 <expresion> ::= <expresion>+<termino>|<expresion>-<termino>|<termino>
 <termino> ::= <termino>*<factor>|<termino>/<factor>|<factor>
-<factor> ::= <identificador>|(<expresion>)|<cte_string>++<cte_string>|<unaryif>|<qeuqual>|<dato>|<cte_string>
+<factor> ::= <identificador>|(<expresion>)|<unaryif>|<qeuqual>|<cte_entero>|<cte_real>
+<expresion_str> ::= <cte_string>|<string>|<expresion_str>++<expresion_str>
 
 <repeat> ::= REPEAT <acciones> UNTIL <condicion>;
 <if> ::= IF <condicion> THEN <acciones> ENDIF|IF <condicion> THEN <acciones> ELSE <acciones> ENDIF
-<unaryif> ::= (<condicion> ? <expresion>, <expresion>)
+<unaryif> ::= (<condicion> ? <expresion>, <expresion>)|(<condicion> ? <expresion_str>, <expresion_str>)
 <qequal> ::= QEqual(<expresion>,<lista>)
 <entrada> ::= GET <identificador>;
 <salida> ::= PUT <expresion>;
 
 <condicion> ::= <comparacion>|<comparacion> AND <comparacion>|<comparacion> OR <comparacion>|!(<comparacion>)
+               |<comparacion_str>|<comparacion_str> AND <comparacion_str>|<comparacion_str> OR <comparacion_str>
+               |!(<comparacion_str>)|<comparacion> AND <comparacion_str>|<comparacion> OR <comparacion_str>
+               |<comparacion_str> AND <comparacion>|<comparacion_str> OR <comparacion>
 <comparacion> ::= <expresion> < <expresion>|<expresion> > <expresion>|<expresion> <= <expresion>  
-                            |<expresion> >= <expresion>|<expresion> <> <expresion>
+                 |<expresion> >= <expresion>|<expresion> <> <expresion>|<expresion> == <expresion>
+<comparacion_str> ::= <comparacion_str> == <comparacion_str>|<comparacion_str> <> <comparacion_str>
 
 <comentarios> ::= /!<alfanumerico>!/|/!<alfanumerico>/!<alfanumerico>!/<alfanumerico>!/
 
 <identificador> ::= <letra>|<letra><alfanumerico> 
 <alfanumerico> ::= <letra>|<digito>|<alfanumerico><letra>|<alfanumerico><digito>
-<cte_entero> ::= <digito>|<cte_entero><digito>
-<cte_real> ::= <cte_entero>.<cte_entero>|.<cte_entero>|<cte_entero>.
-<cte_string> ::= "<alfanumerico>"
-<dato> ::= <cte_entero>|<cte_real>|<cte_string>
+<numero> ::= <digito>|<numero><digito>
+<real> ::= <numero>.<numero>|.<numero>|<numero>.
+<string> ::= "<alfanumerico>"
+<dato> ::= <entero>|<real>|<string>
+
+<cte_entera> ::= 
+<cte_real> ::= 
+<cte_string> ::= 
 
 <lista> ::=  [<elementoLista>]
 <elementoLista> ::= <expresion>|<elementoLista>,<expresion>
 
 <tipo> ::= Int|Real|String
 <digito> ::= 0|1|2|3|4|5|6|7|8|9
-<letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '|''
+<letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '
