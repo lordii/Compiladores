@@ -38,9 +38,9 @@
 <string> ::= "<alfanumerico>"
 <dato> ::= <entero>|<real>|<string>
 
-<cte_entera> ::= 
-<cte_real> ::= 
-<cte_string> ::= 
+<cte_entera> ::= <numero>
+<cte_real> ::= <real>
+<cte_string> ::= <string>
 
 <lista> ::=  [<elementoLista>]
 <elementoLista> ::= <expresion>|<elementoLista>,<expresion>
