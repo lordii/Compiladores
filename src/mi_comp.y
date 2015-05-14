@@ -73,7 +73,7 @@ sentenciadeclaracionvar:
 
 declaracionvar:
 	identificador DEFINE tipo FIN_SENTENCIA
-	|declaracionvar identificador DEFINE tipo
+	|declaracionvar identificador DEFINE tipo FIN_SENTENCIA
 	;
 
 acciones:
@@ -91,11 +91,38 @@ accion:
 	;
 
 asignacion:
-	identificador ASIGNACION expresion
-	|identificador ASIGNACION expresion_str
+	identificador ASIGNACION expresion FIN_SENTENCIA
+	|identificador ASIGNACION expresion_str FIN_SENTENCIA
 	;
 
 definicionconstante:
 	CONST identificador ASIGNACION dato
 	;
+
+expresion:
+        expresion MAS termino
+        |expresion MENOS termino
+        |termino
+        ;
+
+termino:
+        termino POR factor
+        |termino DIVIDO factor
+        |factor
+        ;
+
+factor:
+        identificador
+        |expresion
+        |unariif
+        |qequal
+        |cte_entero
+        |cte_real
+        ;
+
+expresion_str:
+        cte_string
+        |string
+        |expresion_str CONCATENACION expresion_str
+
 
