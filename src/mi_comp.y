@@ -72,8 +72,8 @@ sentenciadeclaracionvar:
 	;
 
 declaracionvar:
-	identificador:tipo;
-	|declaracionvar identificador:tipo
+	identificador DEFINE tipo FIN_SENTENCIA
+	|declaracionvar identificador DEFINE tipo
 	;
 
 acciones:
@@ -91,11 +91,11 @@ accion:
 	;
 
 asignacion:
-	identificador=expresion
-	|identificador=expresion_str
+	identificador ASIGNACION expresion
+	|identificador ASIGNACION expresion_str
 	;
 
 definicionconstante:
-	CONST identificador=dato
+	CONST identificador ASIGNACION dato
 	;
 
