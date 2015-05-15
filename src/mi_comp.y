@@ -2,6 +2,9 @@
 %{		//includes,defines,variables globales
 	#include<stdio.h>
 	#include<stdlib.h>
+        extern int yylex(void);
+        extern FILE *yyin;
+        int yystopparser=0;
 %}
 
 /*seccion tokens*/
@@ -254,7 +257,17 @@ falta ver el tema de los primitivos y probarlo
 
 ***/
 
-	
+int main(int argc,char *argv[])
+{
+/*aca deberia abrir el archivo, llamar a yyparse del lexico */
+}
+
+int yyerror(void){
+    printf("Syntax Error");
+    system("Pause");
+    exit(1);
+}
+
 
 
 
