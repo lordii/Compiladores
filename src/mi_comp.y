@@ -51,7 +51,7 @@
 %token SIG_UNARYIF
 %token FIN_SENTENCIA
 %token SEPARADOR
-
+%token CONCATENACION
 
 %start programa
 
@@ -70,13 +70,13 @@ programa:
 	;
 
 sentenciadeclaracionvar:
-	DEFVAR {printf("Inicio declaraciones")} declaracionvar ENDEF {printf("Fin de declaraciones")}
-	|DEFVAR {printf("Inicio de declaraciones")} declaracionvar declaracionvar ENDEF {printf("Fin de declaraciones")}
+	DEFVAR {printf("Inicio declaraciones")} declaracionvar ENDDEF {printf("Fin de declaraciones")}
+	|DEFVAR {printf("Inicio de declaraciones")} declaracionvar declaracionvar ENDDEF {printf("Fin de declaraciones")}
 	;
 
 declaracionvar:
 	identificador DEFINE tipo FIN_SENTENCIA
-	|declaracionvar SEPARADOR_COMA identificador DEFINE tipo FIN_SENTENCIA
+	|declaracionvar SEPARDOR_COMA identificador DEFINE tipo FIN_SENTENCIA
 	;
 
 acciones:
@@ -110,16 +110,16 @@ expresion:
 
 termino:
         termino POR factor
-        |termino DIVIDO factor
+        |termino DIVIDIDO factor
         |factor
         ;
 
 factor:
         identificador
         |expresion
-        |unariif
+        |unaryif
         |qequal
-        |cte_entero
+        |cte_entera
         |cte_real
         ;
 
@@ -139,12 +139,12 @@ if:
 	;
 
 unaryif:
-	PAR_ABRE condicion SIG_UNARYIF expresion SEPARADOR_COMA expresion PAR_CIERRA
-	|PAR_ABRE condicion SIG_UNARIF expresio_str SEPARADOR_COMA expresion_str PAR_CIERRA
+	PAR_ABRE condicion SIG_UNARYIF expresion SEPARDOR_COMA expresion PAR_CIERRA
+	|PAR_ABRE condicion SIG_UNARYIF expresion_str SEPARDOR_COMA expresion_str PAR_CIERRA
 	;
 	
 qequal:
-	QEQUAL PAR_ABRE expresion SEPARADOR_COMA lista PAR_CIERRA
+	QEQUAL PAR_ABRE expresion SEPARDOR_COMA lista PAR_CIERRA
 	;
 	
 entrada:
@@ -219,7 +219,8 @@ dato:
 	entero
 	|real
 	|string
-	
+	;
+
 cte_entera:
 	numero
 	;
@@ -238,7 +239,7 @@ lista:
 	
 elementolista:
 	expresion
-	|elementolista SEPARADOR_cOMA expresion
+	|elementolista SEPARDOR_COMA expresion
 	;
 	
 tipo:
@@ -246,20 +247,14 @@ tipo:
 	|REAL
 	|STRING
 	;
-	
-/***
-nose como poner los tipos primitivos...
-<digito> ::= 0|1|2|3|4|5|6|7|8|9
-<letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '
 
-Bueno segun vi en varios ejemplos podemos poner un simbolo anque no sea token asi ','
-falta ver el tema de los primitivos y probarlo
+%%
 
-***/
+/*falta ver como definir letra digito y entero*/
 
-int main(int argc,char *argv[])
-{
-/*aca deberia abrir el archivo, llamar a yyparse del lexico */
+int main(int argc,char *argv[]){
+	/*aca se pasa el archivo y se llama a yyparse() estoy probando como...*/
+
 }
 
 int yyerror(void){
@@ -267,10 +262,3 @@ int yyerror(void){
     system("Pause");
     exit(1);
 }
-
-
-
-
-
-
-
