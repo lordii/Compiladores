@@ -200,16 +200,16 @@ numero:
 	|numero digito
 	;
 	
-	/*punto no lo reconoce como token?*/
+	
 real:
-	numero PUNTO numero
-	|PUNTO numero
-	|numero PUNTO
+	numero '.' numero
+	|'.' numero
+	|numero '.'
 	;
 	
-	/*comillas tampoco?*/
+	
 string:
-	COMILLA alfanumerico COMILLA
+	'"' alfanumerico '"'
 	;
 	
 dato:
@@ -248,6 +248,10 @@ tipo:
 nose como poner los tipos primitivos...
 <digito> ::= 0|1|2|3|4|5|6|7|8|9
 <letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '
+
+Bueno segun vi en varios ejemplos podemos poner un simbolo anque no sea token asi ','
+falta ver el tema de los primitivos y probarlo
+
 ***/
 
 	
