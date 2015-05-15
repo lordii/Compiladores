@@ -73,7 +73,7 @@ sentenciadeclaracionvar:
 
 declaracionvar:
 	identificador DEFINE tipo FIN_SENTENCIA
-	|declaracionvar identificador DEFINE tipo FIN_SENTENCIA
+	|declaracionvar SEPARADOR_COMA identificador DEFINE tipo FIN_SENTENCIA
 	;
 
 acciones:
@@ -124,5 +124,136 @@ expresion_str:
         cte_string
         |string
         |expresion_str CONCATENACION expresion_str
+	;
+	
+repeat:
+	REPEAT acciones UNTIL condicion FIN_SENTENCIA
+	;
+	
+if:
+	IF condicion THEN acciones ENDIF
+	|IF condicion THEN acciones ELSE acciones ENDIF
+	;
+
+unaryif:
+	PAR_ABRE condicion SIG_UNARYIF expresion SEPARADOR_COMA expresion PAR_CIERRA
+	|PAR_ABRE condicion SIG_UNARIF expresio_str SEPARADOR_COMA expresion_str PAR_CIERRA
+	;
+	
+qequal:
+	QEQUAL PAR_ABRE expresion SEPARADOR_COMA lista PAR_CIERRA
+	;
+	
+entrada:
+	GET identificador FIN_SENTENCIA
+	;
+	
+salida:
+	PUT expresion FIN_SENTENCIA
+	;
+	
+condicion:
+	comparacion
+	|comparacion AND comparacion
+	|comparacion OR comparacion
+	|NOT comparacion
+	|comparacion_str
+	|comparacion_str AND comparacion_str
+	|comparacion_str OR comparacion_str
+	|comparacion_str AND comparacion
+	|comparacion_str OR comparacion
+	|comparacion AND comparacion_str
+	|comparacion OR comparacion_str
+	;
+
+comparacion:
+	expresion MENOR expresion
+	|expresion MAYOR expresion
+	|expresion MENOR_IGUAL expresion
+	|expresion MAYOR_IGUAL expresion
+	|expresion IGUAL expresion
+	|expresion DISTINTO expresion
+	;
+
+comparacion_str:
+	comparacion_str IGUAL comparacion_str
+	|comparacion_str DISTINTO comparacion_str
+	;	
+
+/* comentarios va , creo que no*/
+
+identificador:
+	letra
+	|digito
+	|alfanumerico
+	;
+
+alfanumerico:
+	letra
+	|digito
+	|alfanumerico letra
+	|alfanumerico digito
+	;
+	
+numero:
+	digito
+	|numero digito
+	;
+	
+	/*punto no lo reconoce como token?*/
+real:
+	numero PUNTO numero
+	|PUNTO numero
+	|numero PUNTO
+	;
+	
+	/*comillas tampoco?*/
+string:
+	COMILLA alfanumerico COMILLA
+	;
+	
+dato:
+	entero
+	|real
+	|string
+	
+cte_entera:
+	numero
+	;
+	
+cte_real:
+	real
+	;
+
+cte_string:
+	string
+	;
+
+lista:
+	COR_ABRE elementolista COR_CIERRA
+	;
+	
+elementolista:
+	expresion
+	|elementolista SEPARADOR_cOMA expresion
+	;
+	
+tipo:
+	INT
+	|REAL
+	|STRING
+	;
+	
+/***
+nose como poner los tipos primitivos...
+<digito> ::= 0|1|2|3|4|5|6|7|8|9
+<letra> ::= 'a'|'b'|'c'.....'x'|'y'|'z'|'A'|'B'|'C'.....'X'|'Y'|'Z'|' '
+***/
+
+	
+
+
+
+
 
 
