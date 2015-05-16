@@ -2,7 +2,10 @@
 %{		//includes,defines,variables globales
 	#include<stdio.h>
 	#include<stdlib.h>
+	#include<string.h>
+	#include<ctype.h>
         extern int yylex(void);
+	/*aca ira el nombre del archivo en el lexico?*/
         extern FILE *yyin;
         int yystopparser=0;
 %}
@@ -70,8 +73,8 @@ programa:
 	;
 
 sentenciadeclaracionvar:
-	DEFVAR {printf("Inicio declaraciones")} declaracionvar ENDDEF {printf("Fin de declaraciones")}
-	|DEFVAR {printf("Inicio de declaraciones")} declaracionvar declaracionvar ENDDEF {printf("Fin de declaraciones")}
+	DEFVAR {printf("Inicio declaraciones");} declaracionvar ENDDEF {printf("Fin de declaraciones");}
+	|DEFVAR {printf("Inicio de declaraciones");} declaracionvar declaracionvar ENDDEF {printf("Fin de declaraciones");}
 	;
 
 declaracionvar:
@@ -179,8 +182,8 @@ comparacion:
 	;
 
 comparacion_str:
-	comparacion_str IGUAL comparacion_str
-	|comparacion_str DISTINTO comparacion_str
+	string IGUAL string
+	|string DISTINTO string
 	;	
 
 /* comentarios va , creo que no*/
@@ -248,16 +251,36 @@ tipo:
 	|STRING
 	;
 
+letra:
+	'a'|'b'|'c'|'d'|'e'|'f'|'g'|'h'|'i'|'j'|'k'|'l'|'m'|'n'|'o'|'p'|'q'|'r'|'s'|'t'|'u'|'v'|'w'|'x'|'y'|'z'
+	;
+
+digito: '1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|'0'
+	;
+
+entero:
+	numero
+	;
+
 %%
 
 /*falta ver como definir letra digito y entero*/
 
 int main(int argc,char *argv[]){
-	/*aca se pasa el archivo y se llama a yyparse() estoy probando como...*/
+	if ((yyin = fopen(argv[1],'rt')) == NULL){
+		printf("Nose puede abrir el archivo\n");
+	}
+	else{
+		yyparse();
+	
+	}
+	fclose(yyin);
+	return 0;
 
 }
 
-int yyerror(void){
+
+int yyerror(){
     printf("Syntax Error");
     system("Pause");
     exit(1);
