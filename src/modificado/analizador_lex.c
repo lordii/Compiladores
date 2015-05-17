@@ -504,7 +504,7 @@ int sin_transicion() {
 }
 
 
-int matriz_nvo_estado[18][21] = {
+int matriz_nvo_estado[19][21] = {
 				 {2,3,1,4,18,90,90,8,90,90,90,90,90,7,5,6,90,90,90,90,0},
 				 {1,1,90,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 				 {2,2,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
@@ -527,7 +527,7 @@ int matriz_nvo_estado[18][21] = {
 				};
 
 //Matriz de punteros a funciones semanticas...
-int (* matriz_punteros[18][21])(void) = {
+int (* matriz_punteros[19][21])(void) = {
 					 {inic_id,inic_cte,inic_str,inic_real,inic_concat,op_res,op_mult,inic_div,op_neg,op_define,fin_sentencia,op_separador,op_unaryif,inic_igual_igual,inic_menor_igual,inic_mayor_igual,par_apertura,par_cierre,cor_apertura,cor_cierre,sin_transicion},
 					 {cont_str,cont_str,fin_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str},
 					 {cont_id,cont_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id},
