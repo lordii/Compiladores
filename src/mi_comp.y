@@ -1,17 +1,17 @@
 /*seccion declaraciones*/
-%{		//includes,defines,variables globales
-	#include<stdio.h>
-	#include<stdlib.h>
-	#include<string.h>
-	#include<ctype.h>
-        extern int yylex(void);
-	/*aca ira el nombre del archivo en el lexico?*/
-        extern FILE *yyin;
-        int yystopparser=0;
+//includes,defines,variables globales
+%{ 
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<ctype.h>
+extern int yylex(void);
+/*aca ira el nombre del archivo en el lexico?*/
+extern FILE *yyin;
+int yystopparser=0;
 %}
 
 /*seccion tokens*/
-
 %token DEFVAR
 %token ENDDEF
 %token CONST
@@ -55,15 +55,14 @@
 %token FIN_SENTENCIA
 %token SEPARADOR
 %token CONCATENACION
-
 %start programa
 
 /*reglas*/
 /***
- aca van las reglas (bnf)
- los terminales tienen que ser los tokens que estan arriba
- no se si esto admite comentarios borrar todo despues
- termina en ;
+aca van las reglas (bnf)
+los terminales tienen que ser los tokens que estan arriba
+no se si esto admite comentarios borrar todo despues
+termina en ;
 ***/
 
 %%
@@ -71,65 +70,64 @@ programa:
 	sentenciadeclaracionvar acciones
 	|acciones
 	;
-
+	
 sentenciadeclaracionvar:
-	DEFVAR {printf("Inicio declaraciones");} declaracionvar ENDDEF {printf("Fin de declaraciones");}
-	|DEFVAR {printf("Inicio de declaraciones");} declaracionvar declaracionvar ENDDEF {printf("Fin de declaraciones");}
+	DEFVAR declaracionvar ENDDEF
+	|DEFVAR declaracionvar declaracionvar ENDDEF
 	;
-
+	
 declaracionvar:
 	identificador DEFINE tipo FIN_SENTENCIA
 	|declaracionvar SEPARDOR_COMA identificador DEFINE tipo FIN_SENTENCIA
 	;
-
+	
 acciones:
 	accion
-	|accion accion
+	|acciones accion
 	;
-
+	
 accion:
 	asignacion
 	|definicionconstante
 	|entrada
-	|salida
+	|salida	
 	|repeat
 	|if
 	;
-
+	
 asignacion:
 	identificador ASIGNACION expresion FIN_SENTENCIA
 	|identificador ASIGNACION expresion_str FIN_SENTENCIA
 	;
-
+	
 definicionconstante:
 	CONST identificador ASIGNACION dato
 	;
-
+	
 expresion:
-        expresion MAS termino
-        |expresion MENOS termino
-        |termino
-        ;
-
+	expresion MAS termino
+	|expresion MENOS termino
+	|termino
+	;
+	
 termino:
-        termino POR factor
-        |termino DIVIDIDO factor
-        |factor
-        ;
-
+	termino POR factor
+	|termino DIVIDIDO factor
+	|factor
+	;
+	
 factor:
-        identificador
-        |expresion
-        |unaryif
-        |qequal
-        |cte_entera
-        |cte_real
-        ;
-
+	identificador
+	|PAR_ABRE expresion PAR_CIERRA
+	|unaryif
+	|qequal
+	|cte_entera
+	|cte_real
+	;
+	
 expresion_str:
-        cte_string
-        |string
-        |expresion_str CONCATENACION expresion_str
+	cte_string
+	|cte_string CONCATENACION cte_string
 	;
 	
 repeat:
@@ -140,7 +138,7 @@ if:
 	IF condicion THEN acciones ENDIF
 	|IF condicion THEN acciones ELSE acciones ENDIF
 	;
-
+	
 unaryif:
 	PAR_ABRE condicion SIG_UNARYIF expresion SEPARDOR_COMA expresion PAR_CIERRA
 	|PAR_ABRE condicion SIG_UNARYIF expresion_str SEPARDOR_COMA expresion_str PAR_CIERRA
@@ -171,7 +169,7 @@ condicion:
 	|comparacion AND comparacion_str
 	|comparacion OR comparacion_str
 	;
-
+	
 comparacion:
 	expresion MENOR expresion
 	|expresion MAYOR expresion
@@ -180,20 +178,17 @@ comparacion:
 	|expresion IGUAL expresion
 	|expresion DISTINTO expresion
 	;
-
+	
 comparacion_str:
 	string IGUAL string
 	|string DISTINTO string
-	;	
-
-/* comentarios va , creo que no*/
-
+	;
+	
 identificador:
 	letra
-	|digito
-	|alfanumerico
+	|letra alfanumerico
 	;
-
+	
 alfanumerico:
 	letra
 	|digito
@@ -206,13 +201,15 @@ numero:
 	|numero digito
 	;
 	
+entero:
+	numero
+	;	
 	
 real:
 	numero '.' numero
 	|'.' numero
 	|numero '.'
 	;
-	
 	
 string:
 	'"' alfanumerico '"'
@@ -231,11 +228,11 @@ cte_entera:
 cte_real:
 	real
 	;
-
+	
 cte_string:
 	string
 	;
-
+	
 lista:
 	COR_ABRE elementolista COR_CIERRA
 	;
@@ -250,38 +247,30 @@ tipo:
 	|REAL
 	|STRING
 	;
-
+	
 letra:
 	'a'|'b'|'c'|'d'|'e'|'f'|'g'|'h'|'i'|'j'|'k'|'l'|'m'|'n'|'o'|'p'|'q'|'r'|'s'|'t'|'u'|'v'|'w'|'x'|'y'|'z'
+	|'A'|'B'|'C'|'D'|'E'|'F'|'G'|'H'|'I'|'J'|'K'|'L'|'M'|'N'|'O'|'P'|'Q'|'R'|'S'|'T'|'U'|'V'|'W'|'X'|'Y'|'Z'
 	;
-
-digito: '1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|'0'
+	
+digito: 
+	'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|'0'
 	;
-
-entero:
-	numero
-	;
-
 %%
 
-/*falta ver como definir letra digito y entero*/
-
-int main(int argc,char *argv[]){
-	if ((yyin = fopen(argv[1],'rt')) == NULL){
+int main(int argc,char *argv[]) {
+	if ((yyin = fopen(argv[1],'rt')) == NULL) {
 		printf("Nose puede abrir el archivo\n");
-	}
-	else{
+	} else{
 		yyparse();
-	
 	}
+	
 	fclose(yyin);
 	return 0;
-
 }
 
-
-int yyerror(){
-    printf("Syntax Error");
-    system("Pause");
-    exit(1);
+int yyerror() {
+	printf("Syntax Error");
+	system("Pause");
+	exit(1);
 }
