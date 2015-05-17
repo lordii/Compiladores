@@ -1,0 +1,1 @@
+DEFVARInt:a;ENDDEFPUTS("hOLA");

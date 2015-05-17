@@ -1,0 +1,5 @@
+para compilar:
+
+    1) PCYACC.EXE -dv mi_comp.y
+    2) gcc.exe -I . analizador_lex.c MI_COMP.C -o SINT.EXE
+    3) deberia compilar sin errores
