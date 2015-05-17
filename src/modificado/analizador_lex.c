@@ -70,6 +70,7 @@ char * get_token_from_yyval(int val) {
 	case 296 : return "SIG_UNARYIF";
         case 297 : return "FIN_SENTENCIA";
         case 298 : return "SEPARADOR";
+        case 299 : return "CONCATENACION";
         	      
         default : return "TOKEN_NO_RECONOCIDO";                   
     }
@@ -329,8 +330,19 @@ int agr_op() {
 }
 
 int op_sum() {
-	agr_op();
     yyval = MAS;
+    return -1;
+}
+
+int inic_concat() {
+	completa_token(token,caracter);
+	longitud = 1;
+	return 0;
+}
+
+int op_concat() {
+	agr_op();
+	yyval = CONCATENACION;
 	return -1;
 }
 
@@ -493,7 +505,7 @@ int sin_transicion() {
 
 
 int matriz_nvo_estado[18][21] = {
-				 {2,3,1,4,90,90,90,8,90,90,90,90,90,7,5,6,90,90,90,90,0},
+				 {2,3,1,4,18,90,90,8,90,90,90,90,90,7,5,6,90,90,90,90,0},
 				 {1,1,90,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 				 {2,2,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
 				 {99,3,99,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
@@ -510,7 +522,8 @@ int matriz_nvo_estado[18][21] = {
 				 {14,14,14,14,14,14,14,17,15,14,14,14,14,14,14,14,14,14,14,14,14},
 				 {14,14,14,14,14,14,14,90,15,14,14,14,14,14,14,14,14,14,14,14,14},
 				 {12,12,12,12,12,12,12,12,-1,12,12,12,12,12,12,12,12,12,12,12,12},
-				 {14,14,14,14,14,14,14,14,-1,14,14,14,14,14,14,14,14,14,14,14,14}
+				 {14,14,14,14,14,14,14,14,-1,14,14,14,14,14,14,14,14,14,14,14,14},
+				 {99,99,99,99,90,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99}
 				};
 
 //Matriz de punteros a funciones semanticas...
@@ -533,6 +546,7 @@ int (* matriz_punteros[18][21])(void) = {
 					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+					 {op_sum,op_sum,op_sum,op_sum,op_concat,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum}
 					};
 
 
