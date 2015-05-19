@@ -237,9 +237,20 @@ int agr_op() {
 }
 
 int op_sum() {
-	agr_op();
     yyval = MAS;
-	return -1;
+    return -1;
+}
+
+int inic_concat() {
+     completa_token(token,caracter);
+     longitud = 1;
+     return 0;
+}
+
+int op_concat() {
+     agr_op();
+     yyval = CONCATENACION;
+     return -1;
 }
 
 int op_res() {
@@ -400,47 +411,50 @@ int sin_transicion() {
 }
 
 
-int matriz_nvo_estado[18][21] = {
-				 {2,3,1,4,90,90,90,8,90,90,90,90,90,7,5,6,90,90,90,90,0},
-				 {1,1,90,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-				 {2,2,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
-				 {99,3,99,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
-				 {99,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
-				 {99,99,99,99,99,99,99,99,99,99,99,99,99,90,99,90,99,99,99,99,99},
-				 {99,99,99,99,99,99,99,99,99,99,99,99,99,90,99,99,99,99,99,99,99},
-				 {99,99,99,99,99,99,99,99,99,99,99,99,99,90,99,99,99,99,99,99,99},
-				 {99,99,99,99,99,99,99,99,9,99,99,99,99,99,99,99,99,99,99,99,99},
-				 {9,9,9,9,9,9,9,11,10,9,9,9,9,9,9,9,9,9,9,9,9},
-				 {9,9,9,9,9,9,9,90,10,9,9,9,9,9,9,9,9,9,9,9,9},
-				 {9,9,9,9,9,9,9,11,12,9,9,9,9,9,9,9,9,9,9,9,9},
-				 {12,12,12,12,12,12,12,16,13,12,12,12,12,12,12,12,12,12,12,12,12},
-				 {12,12,12,12,12,12,12,14,13,12,12,12,12,12,12,12,12,12,12,12,12},
-				 {14,14,14,14,14,14,14,17,15,14,14,14,14,14,14,14,14,14,14,14,14},
-				 {14,14,14,14,14,14,14,90,15,14,14,14,14,14,14,14,14,14,14,14,14},
-				 {12,12,12,12,12,12,12,12,-1,12,12,12,12,12,12,12,12,12,12,12,12},
-				 {14,14,14,14,14,14,14,14,-1,14,14,14,14,14,14,14,14,14,14,14,14}
-				};
+int matriz_nvo_estado[19][21] = {
+	{2,3,1,4,18,90,90,8,90,90,90,90,90,7,5,6,90,90,90,90,0},
+	{1,1,90,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+	{2,2,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
+	{99,3,99,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
+	{99,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
+	{99,99,99,99,99,99,99,99,99,99,99,99,99,90,99,90,99,99,99,99,99},
+	{99,99,99,99,99,99,99,99,99,99,99,99,99,90,99,99,99,99,99,99,99},
+	{99,99,99,99,99,99,99,99,99,99,99,99,99,90,99,99,99,99,99,99,99},
+	{99,99,99,99,99,99,99,99,9,99,99,99,99,99,99,99,99,99,99,99,99},
+	{9,9,9,9,9,9,9,11,10,9,9,9,9,9,9,9,9,9,9,9,9},
+	{9,9,9,9,9,9,9,90,10,9,9,9,9,9,9,9,9,9,9,9,9},
+	{9,9,9,9,9,9,9,11,12,9,9,9,9,9,9,9,9,9,9,9,9},
+	{12,12,12,12,12,12,12,16,13,12,12,12,12,12,12,12,12,12,12,12,12},
+	{12,12,12,12,12,12,12,14,13,12,12,12,12,12,12,12,12,12,12,12,12},
+	{14,14,14,14,14,14,14,17,15,14,14,14,14,14,14,14,14,14,14,14,14},
+	{14,14,14,14,14,14,14,90,15,14,14,14,14,14,14,14,14,14,14,14,14},
+	{12,12,12,12,12,12,12,12,-1,12,12,12,12,12,12,12,12,12,12,12,12},
+	{14,14,14,14,14,14,14,14,-1,14,14,14,14,14,14,14,14,14,14,14,14},
+	{99,99,99,99,90,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99}
+};
+//Matriz de punteros a funciones semanticas...
+int (* matriz_punteros[19][21])(void) = {
+	{inic_id,inic_cte,inic_str,inic_real,inic_concat,op_res,op_mult,inic_div,op_neg,op_define,fin_sentencia,op_separador,op_unaryif,inic_igual_igual,inic_menor_igual,inic_mayor_igual,par_apertura,par_cierre,cor_apertura,cor_cierre,sin_transicion},
+	{cont_str,cont_str,fin_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str},
+	{cont_id,cont_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id},
+	{fin_cte,cont_cte,fin_cte,inic_real,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte},
+	{fin_real,cont_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real},
+	{op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor_igual,op_menor,op_distinto,op_menor,op_menor,op_menor,op_menor,op_menor},
+	{op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor_igual,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor},
+	{op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_igual_igual,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig},
+	{op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,inic_com,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{op_sum,op_sum,op_sum,op_sum,op_concat,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum}
+};
 
-int (* matriz_punteros[18][21])(void) = {
-					 {inic_id,inic_cte,inic_str,inic_real,op_sum,op_res,op_mult,inic_div,op_neg,op_define,fin_sentencia,op_separador,op_unaryif,inic_igual_igual,inic_menor_igual,inic_mayor_igual,par_apertura,par_cierre,cor_apertura,cor_cierre,sin_transicion},
-					 {cont_str,cont_str,fin_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str},
-					 {cont_id,cont_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id},
-					 {fin_cte,cont_cte,fin_cte,inic_real,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte},
-					 {fin_real,cont_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real,fin_real},
-					 {op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor,op_menor_igual,op_menor,op_distinto,op_menor,op_menor,op_menor,op_menor,op_menor},
-					 {op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor_igual,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor,op_mayor},
-					 {op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_igual_igual,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig},
-					 {op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,inic_com,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div},
-					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-					};
 
 int analiza_caracter(char c) {
     if (isupper(c) | islower(c) == 2) {
@@ -454,11 +468,11 @@ int analiza_caracter(char c) {
        		} else {
            		if (ispunct(c)) {
            			switch (c) {
-                   				case '\"': return ES_COMILLA;
+                   		case '\"': return ES_COMILLA;
                         	case '.' : return ES_PUNTO;
                         	case '!' : return ES_SIGNO_EXCALAMACION;
                         	case '=' : return ES_SIGNO_IGUAL;
-			        						case '>' : return ES_SIGNO_MAYOR;
+			        case '>' : return ES_SIGNO_MAYOR;
                         	case '<' : return ES_SIGNO_MENOR;
                         	case '+' : return ES_SIGNO_MAS;
                         	case '-' : return ES_SIGNO_MENOS;
@@ -470,7 +484,7 @@ int analiza_caracter(char c) {
                         	case ']' : return ES_CORCHETE_CERRADO;
                         	case ';' : return ES_PUNTO_Y_COMA;
                         	case ':' : return ES_DOS_PUNTOS;
-                					case ',' : return ES_COMA;
+                		case ',' : return ES_COMA;
                         	case '?' : return ES_INTERROGACION;
 
                         	default : return ERROR;
@@ -486,7 +500,7 @@ int get_evento(char c) {
     switch (resultado) {
        	case (ES_LETRA) : return 0;
        	case (ES_DIGITO) : return 1;
-		case (ES_COMILLA) : return 2;
+	case (ES_COMILLA) : return 2;
        	case (ES_PUNTO) : return 3;
        	case (ES_SIGNO_MAS) : return 4;
        	case (ES_SIGNO_MENOS) : return 5;
@@ -514,23 +528,23 @@ int yylex() {
     int columna, estado, estado_final, token_resultante, estado_final_retorno;
 
 	estado = 0;
-    estado_final = 90;
+    	estado_final = 90;
 	estado_final_retorno = 99;
 	inicializa_token(token);
 
     if (feof(yyin) != 0) {
-       	printf ("\nEl archivo esta vacio!!\n");
+       	//printf ("\nEl archivo esta vacio!!\n");
        	return 1;
     }
 
     while ((estado != estado_final)&&(estado != estado_final_retorno)) {
         if (feof(yyin) != 0) {
             if (estado == 0) {
-				//printf ( "FIN_DE_COMPILACION" );
+		//printf ( "FIN_DE_COMPILACION" );
                 return FIN_DE_COMPILACION;
             } else {
                 printf ("\nFin de archivo inesperado!!\n");
-				printf ( "ERROR" );
+		printf ( "ERROR" );
                 return ERROR;
             }
         } else {
