@@ -471,8 +471,19 @@ int agr_op() {
 }
 
 int op_sum() {
-	agr_op();
     yyval = MAS;
+	return -1;
+}
+
+int inic_concat() {
+	completa_token(token,caracter);
+	longitud = 1;
+	return 0;
+}
+
+int op_concat() {
+	agr_op();
+	yyval = CONCATENACION;
 	return -1;
 }
 
@@ -634,8 +645,8 @@ int sin_transicion() {
 }
 
 
-int matriz_nvo_estado[18][21] = {
-				 {2,3,1,4,90,90,90,8,90,90,90,90,90,7,5,6,90,90,90,90,0},
+int matriz_nvo_estado[19][21] = {
+				 {2,3,1,4,18,90,90,8,90,90,90,90,90,7,5,6,90,90,90,90,0},
 				 {1,1,90,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 				 {2,2,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
 				 {99,3,99,4,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99},
@@ -652,11 +663,12 @@ int matriz_nvo_estado[18][21] = {
 				 {14,14,14,14,14,14,14,17,15,14,14,14,14,14,14,14,14,14,14,14,14},
 				 {14,14,14,14,14,14,14,90,15,14,14,14,14,14,14,14,14,14,14,14,14},
 				 {12,12,12,12,12,12,12,12,-1,12,12,12,12,12,12,12,12,12,12,12,12},
-				 {14,14,14,14,14,14,14,14,-1,14,14,14,14,14,14,14,14,14,14,14,14}
+				 {14,14,14,14,14,14,14,14,-1,14,14,14,14,14,14,14,14,14,14,14,14},
+				 {99,99,99,99,90,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99}
 				};
 
-int (* matriz_punteros[18][21])(void) = {
-					 {inic_id,inic_cte,inic_str,inic_real,op_sum,op_res,op_mult,inic_div,op_neg,op_define,fin_sentencia,op_separador,op_unaryif,inic_igual_igual,inic_menor_igual,inic_mayor_igual,par_apertura,par_cierre,cor_apertura,cor_cierre,sin_transicion},
+int (* matriz_punteros[19][21])(void) = {
+					 {inic_id,inic_cte,inic_str,inic_real,inic_concat,op_res,op_mult,inic_div,op_neg,op_define,fin_sentencia,op_separador,op_unaryif,inic_igual_igual,inic_menor_igual,inic_mayor_igual,par_apertura,par_cierre,cor_apertura,cor_cierre,sin_transicion},
 					 {cont_str,cont_str,fin_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str},
 					 {cont_id,cont_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id,fin_id},
 					 {fin_cte,cont_cte,fin_cte,inic_real,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte,fin_cte},
@@ -674,6 +686,7 @@ int (* matriz_punteros[18][21])(void) = {
 					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 					 {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+					 {op_sum,op_sum,op_sum,op_sum,op_concat,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum}
 					};
 
 int analiza_caracter(char c) {
