@@ -76,8 +76,8 @@ sentenciadeclaracionvar:
 	;
 	
 declaracionvar:
-	identificador DEFINE {printf("DEFINE\n");} tipo fin_sentencia
-	|declaracionvar SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} identificador DEFINE {printf("DEFINE\n");} tipo fin_sentencia
+	identificador DEFINE {printf("DEFINE\n");} tipo
+	|declaracionvar SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} identificador DEFINE {printf("DEFINE\n");} tipo
 	;
 	
 acciones:
