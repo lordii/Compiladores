@@ -4,6 +4,7 @@
 #include<ctype.h>
 #include <malloc.h>
 #include <definiciones.h>
+#include <YYTAB.h>
 
 FILE *yyin;
 int yyval;
