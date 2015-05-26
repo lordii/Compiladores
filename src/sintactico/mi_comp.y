@@ -1,4 +1,3 @@
-/*seccion declaraciones*/
 %{ 
 #include<stdio.h>
 #include<stdlib.h>
@@ -11,7 +10,6 @@ extern FILE *yyin;
 int yystopparser=0;
 %}
 
-/*seccion tokens*/
 %token DEFVAR
 %token ENDDEF
 %token CONST
@@ -57,14 +55,6 @@ int yystopparser=0;
 %token CONCATENACION
 %start programa
 
-/*reglas*/
-/***
-aca van las reglas (bnf)
-los terminales tienen que ser los tokens que estan arriba
-no se si esto admite comentarios borrar todo despues
-termina en ;
-***/
-
 %%
 programa:
 	sentenciadeclaracionvar acciones
@@ -76,8 +66,8 @@ sentenciadeclaracionvar:
 	;
 	
 declaracionvar:
-	identificador DEFINE {printf("DEFINE\n");} tipo
-	|declaracionvar SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} identificador DEFINE {printf("DEFINE\n");} tipo
+	identificador DEFINE {printf("DEFINE\n");} tipo 
+	|declaracionvar SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} identificador DEFINE {printf("DEFINE\n");} tipo 
 	;
 	
 acciones:
@@ -95,8 +85,7 @@ accion:
 	;
 	
 asignacion:
-	identificador SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresion fin_sentencia
-	|identificador SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresion_str fin_sentencia
+	identificador SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
 	;
 	
 definicionconstante:
@@ -117,7 +106,7 @@ termino:
 	
 factor:
 	identificador
-	|par_apertura expresion par_cierre
+	|PAR_ABRE expresion PAR_CIERRA  { $$ = $2; } 
 	|unaryif
 	|qequal
 	|CTE_ENTERA {printf("CTE_ENTERA\n");}
@@ -125,38 +114,42 @@ factor:
 	;
 	
 expresion_str:
-	cte_string
-	|cte_string CONCATENACION {printf("CONCATENACION\n");} cte_string
+	|string CONCATENACION {printf("CONCATENACION\n");} string
+	|CTE_STRING {printf("CTE_STRING\n");}
 	;
 	
 repeat:
-	REPEAT {printf("REPEAT\n");} acciones UNTIL condicion fin_sentencia
+	REPEAT {printf("REPEAT\n");} acciones UNTIL {printf("UNTIL\n");} condicion FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
 	;
 	
 if:
-	IF {printf("IF\n");} cuerpoif ENDIF {printf("ENDIF\n");}
+	IF {printf("IF\n");} condicion THEN cuerpoif ENDIF {printf("ENDIF\n");}
 	;
-	
+
 cuerpoif:
-	condicion THEN acciones
-	|condicion THEN acciones ELSE acciones
+	acciones
+	| acciones ELSE {printf("ELSE\n");} acciones
 	;
 	
 unaryif:
-	par_apertura condicion SIG_UNARYIF {printf("UNARYIF\n");} expresion SEPARDOR_COMA expresion par_cierre {printf("FINUNARYIF\n");}
-	|par_apertura condicion SIG_UNARYIF {printf("UNARYIF\n");} expresion_str SEPARDOR_COMA expresion_str par_cierre {printf("FINUNARYIF\n");}
+	PAR_ABRE condicion SIG_UNARYIF {printf("UNARYIF\n");} cuerpounaryif PAR_CIERRA
+	;
+	
+cuerpounaryif:
+	expresion SEPARDOR_COMA expresion
+	|expresion_str SEPARDOR_COMA expresion_str
 	;
 	
 qequal:
-	QEQUAL {printf("QEQUAL\n");} PAR_ABRE expresion SEPARDOR_COMA lista PAR_CIERRA {printf("FINQEQUAL\n");}
+	QEQUAL {printf("QEQUAL\n");} PAR_ABRE expresion SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} lista PAR_CIERRA
 	;
 	
 entrada:
-	GET {printf("GET\n");} identificador fin_sentencia
+	GET {printf("GET\n");} identificador FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
 	;
 	
 salida:
-	PUT {printf("PUT\n");} expresion fin_sentencia
+	PUT {printf("PUT\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
 	;
 	
 condicion:
@@ -183,20 +176,21 @@ comparacion:
 	;
 	
 comparacion_str:
-	string IGUAL {printf("IGUAL\n");} string
-	|string DISTINTO {printf("DISTINTO\n");} string
+	expresion_str IGUAL {printf("IGUAL\n");} expresion_str
+	|expresion_str DISTINTO {printf("DISTINTO\n");} expresion_str
+	;
+	
+expresiones:
+	expresion
+	| expresion_str
 	;
 	
 identificador:
 	ID {printf("ID\n");}
 	;
 	
-numero:
-	CTE_ENTERA {printf("CTE_ENTERA\n");}
-	;
-	
 entero:
-	numero
+	CTE_ENTERA {printf("CTE_ENTERA\n");}
 	;	
 	
 real:
@@ -212,11 +206,6 @@ dato:
 	|real
 	|string
 	;
-
-	
-cte_string:
-	string
-	;
 	
 lista:
 	COR_ABRE {printf("COR_ABRE\n");} elementolista COR_CIERRA {printf("COR_CIERRA\n");}
@@ -231,18 +220,6 @@ tipo:
 	INT {printf("INT\n");}
 	|REAL {printf("REAL\n");}
 	|STRING {printf("STRING\n");}
-	;
-
-par_apertura:
-	PAR_ABRE {printf("PAR_ABRE\n");}
-	;
-
-par_cierre:
-	PAR_CIERRA {printf("PAR_CIERRA\n");}
-	;
-	
-fin_sentencia:
-	FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
 	;
 	
 %%
@@ -267,4 +244,3 @@ int main(int argc, char *argv[])
 	return 0;
 
 }
-
