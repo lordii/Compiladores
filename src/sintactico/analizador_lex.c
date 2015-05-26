@@ -16,6 +16,7 @@ int cte_int;
 struct ts {
 	int numero;
 	char nombre[100];
+	char tipo[100];
 	struct ts *siguiente;
 };
 typedef struct ts tabla;
@@ -106,23 +107,23 @@ int inic_cte() {
 int cont_cte() {
     completa_token(token,caracter);
     cte_int = cte_int * 10 + atoi(&caracter);
-    if (cte_int > 65535) {
-       	printf("\nError: Entero demasiado largo. (No puede superar 65535)\n");
-       	return ERROR;
-    } else {
 	longitud++;
 	return 0;
-    }
 }
 
 int fin_cte() {
-    int pos_en_tabla = existe_en_tabla_simbolos(token);
+	if (cte_int > 65535) {
+       	printf("\nError: Entero demasiado largo. (No puede superar 65535)\n");
+       	return ERROR;
+    } else {
+		int pos_en_tabla = existe_en_tabla_simbolos(token);
 
-    if (pos_en_tabla == -1)
-    	pos_en_tabla = insertar_en_tabla_simbolos(token);
+		if (pos_en_tabla == -1)
+			pos_en_tabla = insertar_en_tabla_simbolos(token);
 
-    yyval = CTE_ENTERA;
-    return pos_en_tabla;
+		yyval = CTE_ENTERA;
+		return pos_en_tabla;
+	}
 }
 
 int inic_real() {
@@ -233,7 +234,6 @@ int fin_id() {
 
 int agr_op() {
 	completa_token(token,caracter);
-    longitud = 1;
     return 0;
 }
 
@@ -244,7 +244,6 @@ int op_sum() {
 
 int inic_concat() {
      completa_token(token,caracter);
-     longitud = 1;
      return 0;
 }
 
@@ -268,7 +267,6 @@ int op_mult() {
 
 int inic_div() {
     completa_token(token,caracter);
-    longitud = 1;
     return 0;
 }
 
@@ -279,19 +277,16 @@ int op_div() {
 
 int inic_igual_igual(){
 	completa_token(token,caracter);
-    longitud = 1;
 	return 0;
 }
 
 int inic_mayor_igual(){
 	completa_token(token,caracter);
-    longitud = 1;
 	return 0;
 }
 
 int inic_menor_igual(){
 	completa_token(token,caracter);
-    longitud = 1;
 	return 0;
 }
 
@@ -395,7 +390,7 @@ int separador() {
 }
 
 int inic_com() {
-	agr_op();
+	inicializa_token(token);
     return -2; // VERRRRR!! que devuelvo?? 0 es token OJO!!
 }
 
@@ -423,12 +418,12 @@ int matriz_nvo_estado[19][21] = {
 	{99,99,99,99,99,99,99,99,99,99,99,99,99,90,99,99,99,99,99,99,99},
 	{99,99,99,99,99,99,99,99,9,99,99,99,99,99,99,99,99,99,99,99,99},
 	{9,9,9,9,9,9,9,11,10,9,9,9,9,9,9,9,9,9,9,9,9},
-	{9,9,9,9,9,9,9,90,10,9,9,9,9,9,9,9,9,9,9,9,9},
+	{9,9,9,9,9,9,9,0,10,9,9,9,9,9,9,9,9,9,9,9,9},
 	{9,9,9,9,9,9,9,11,12,9,9,9,9,9,9,9,9,9,9,9,9},
 	{12,12,12,12,12,12,12,16,13,12,12,12,12,12,12,12,12,12,12,12,12},
 	{12,12,12,12,12,12,12,14,13,12,12,12,12,12,12,12,12,12,12,12,12},
 	{14,14,14,14,14,14,14,17,15,14,14,14,14,14,14,14,14,14,14,14,14},
-	{14,14,14,14,14,14,14,90,15,14,14,14,14,14,14,14,14,14,14,14,14},
+	{14,14,14,14,14,14,14,0,15,14,14,14,14,14,14,14,14,14,14,14,14},
 	{12,12,12,12,12,12,12,12,-1,12,12,12,12,12,12,12,12,12,12,12,12},
 	{14,14,14,14,14,14,14,14,-1,14,14,14,14,14,14,14,14,14,14,14,14},
 	{99,99,99,99,90,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99}
@@ -445,15 +440,15 @@ int (* matriz_punteros[19][21])(void) = {
 	{op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_igual_igual,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig,op_asig},
 	{op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,inic_com,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div,op_div},
 	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,fin_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
+	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,fin_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	{NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,error_com,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
-	{op_sum,op_sum,op_sum,op_sum,op_concat,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum}
+	{op_sum,op_sum,op_sum,op_sum,op_concat,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum,op_sum}
 };
 
 
@@ -473,7 +468,7 @@ int analiza_caracter(char c) {
                         	case '.' : return ES_PUNTO;
                         	case '!' : return ES_SIGNO_EXCALAMACION;
                         	case '=' : return ES_SIGNO_IGUAL;
-			        case '>' : return ES_SIGNO_MAYOR;
+							case '>' : return ES_SIGNO_MAYOR;
                         	case '<' : return ES_SIGNO_MENOR;
                         	case '+' : return ES_SIGNO_MAS;
                         	case '-' : return ES_SIGNO_MENOS;
@@ -485,11 +480,11 @@ int analiza_caracter(char c) {
                         	case ']' : return ES_CORCHETE_CERRADO;
                         	case ';' : return ES_PUNTO_Y_COMA;
                         	case ':' : return ES_DOS_PUNTOS;
-                		case ',' : return ES_COMA;
+							case ',' : return ES_COMA;
                         	case '?' : return ES_INTERROGACION;
 
                         	default : return ERROR;
-                    		}
+                    	}
                 	}
             	}
         }
@@ -501,7 +496,7 @@ int get_evento(char c) {
     switch (resultado) {
        	case (ES_LETRA) : return 0;
        	case (ES_DIGITO) : return 1;
-	case (ES_COMILLA) : return 2;
+		case (ES_COMILLA) : return 2;
        	case (ES_PUNTO) : return 3;
        	case (ES_SIGNO_MAS) : return 4;
        	case (ES_SIGNO_MENOS) : return 5;
@@ -529,23 +524,23 @@ int yylex() {
     int columna, estado, estado_final, token_resultante, estado_final_retorno;
 
 	estado = 0;
-    	estado_final = 90;
+    estado_final = 90;
 	estado_final_retorno = 99;
 	inicializa_token(token);
 
     if (feof(yyin) != 0) {
-       	//printf ("\nEl archivo esta vacio!!\n");
+       	printf ("\nEl archivo esta vacio!!\n");
        	return 1;
     }
 
     while ((estado != estado_final)&&(estado != estado_final_retorno)) {
         if (feof(yyin) != 0) {
             if (estado == 0) {
-		//printf ( "FIN_DE_COMPILACION" );
+				//printf ( "FIN_DE_COMPILACION" );
                 return FIN_DE_COMPILACION;
             } else {
                 printf ("\nFin de archivo inesperado!!\n");
-		printf ( "ERROR" );
+				printf ( "ERROR" );
                 return ERROR;
             }
         } else {
@@ -559,7 +554,7 @@ int yylex() {
             return ERROR;
         }
 
-       // printf ( "---> Voy desde estado: \"%i\" con caracter: \"%c\" a nuevo estado: %i\n",estado,caracter,matriz_nvo_estado[estado][columna]);
+        //printf ( "---> Voy desde estado: \"%i\" con caracter: \"%c\" a nuevo estado: %i\n",estado,caracter,matriz_nvo_estado[estado][columna]);
 
         if (matriz_punteros[estado][columna] != NULL) {
             token_resultante = (* matriz_punteros[estado][columna]) ();
@@ -576,8 +571,6 @@ int yylex() {
 		ungetc(caracter,yyin);
     }
 	//printf ( "%i + %i ",token_resultante,yyval);
+
 	return yyval;
 }
-
-
-
