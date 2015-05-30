@@ -13,12 +13,14 @@ char token[100];
 int longitud;
 double cte_float;
 int cte_int;
+
 struct ts {
 	int numero;
 	char nombre[100];
 	char tipo[100];
 	struct ts *siguiente;
 };
+
 typedef struct ts tabla;
 tabla* tabla_simbolos = NULL;
 char* palabras_res[]={"DEFVAR","ENDDEF","CONST","Int","Real","String","GET","PUT",
@@ -31,7 +33,7 @@ void completa_token(char dest[100], char c) {
 void inicializa_token(char tok[100]) {
     memset(tok, (int) NULL, 100);
 }
-
+//cambiar tipo en sintactico?
 int insertar_en_tabla_simbolos(char nombre[100]) {
 	tabla *nuevo_reg =(tabla *)malloc(sizeof(tabla));
 	nuevo_reg->siguiente=tabla_simbolos;
@@ -42,7 +44,8 @@ int insertar_en_tabla_simbolos(char nombre[100]) {
        	nuevo_reg->numero = 0;
 		
 	strcpy(nuevo_reg->nombre,nombre);
-
+	//
+	strcpy(nuevo_reg->tipo,"sin tipo");
 	tabla_simbolos = nuevo_reg;
 
 	return nuevo_reg->numero;
@@ -57,6 +60,15 @@ int existe_en_tabla_simbolos(char* nombre) {
 	    return act->numero;
 	else
 	    return -1;
+}
+
+void imprimir_tabla_de_simbolos() {
+	tabla *act = tabla_simbolos; 
+	printf("\nTABLA DE SIMBOLOS:\n=================\n\n");
+	while(act != NULL) { 
+ 	    printf("Numero :%i\nNombre: %s\nTipo: %s\n",act->numero,act->nombre,act->tipo);
+ 	    act = act->siguiente;
+	}
 }
 
 int es_palabra_reservada(char* palabra) {

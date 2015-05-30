@@ -4,7 +4,8 @@
 #include<string.h>
 #include<ctype.h>
 int yyerror(char const*);
-extern int yyparse();
+extern yyparse();
+extern "C" void imprimir_tabla_de_simbolos();
 extern "C" int yylex();
 extern FILE *yyin;
 int yystopparser=0;
@@ -241,6 +242,7 @@ int main(int argc, char *argv[])
 		yyparse();
 	}
 	fclose(yyin);
+	imprimir_tabla_de_simbolos();
 	return 0;
 
 }
