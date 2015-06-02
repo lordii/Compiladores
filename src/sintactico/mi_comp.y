@@ -4,11 +4,16 @@
 #include<string.h>
 #include<ctype.h>
 int yyerror(char const*);
-extern yyparse();
-extern "C" void imprimir_tabla_de_simbolos();
+extern int yyparse();
 extern "C" int yylex();
+extern "C" void imprimir_tabla_de_simbolos();
+extern "C" void agregar_tipoVarible_a_tabla(int posT, int type);
+extern "C" int verificar_tipoVariable(int posT);
+extern "C" char* nombre_varTabla(int posT);
 extern FILE *yyin;
+extern int yylval;
 int yystopparser=0;
+int posTbl;
 %}
 
 %token DEFVAR
@@ -67,8 +72,8 @@ sentenciadeclaracionvar:
 	;
 	
 declaracionvar:
-	identificador DEFINE {printf("DEFINE\n");} tipo 
-	|declaracionvar SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} identificador DEFINE {printf("DEFINE\n");} tipo 
+	ID {printf("ID\n"); posTbl=yylval;} DEFINE {printf("DEFINE\n");} tipo 
+	|declaracionvar SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} ID {printf("ID\n"); posTbl=yylval;} DEFINE {printf("DEFINE\n");} tipo 
 	;
 	
 acciones:
@@ -86,27 +91,27 @@ accion:
 	;
 	
 asignacion:
-	identificador SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
+	ID {printf("ID\n"); if (verificar_tipoVariable(yylval) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla(yylval));}} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
 	;
 	
 definicionconstante:
-	CONST {printf("CONST\n");} identificador SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} dato
+	CONST {printf("CONST\n");} ID {printf("ID\n"); posTbl=yylval;} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} dato
 	;
 	
 expresion:
-	expresion MAS {printf("MAS\n");} termino
-	|expresion MENOS {printf("MENOS\n");} termino
-	|termino
+	expresion MAS {printf("MAS\n");} termino 
+	|expresion MENOS {printf("MENOS\n");} termino 
+	|termino 
 	;
 	
 termino:
-	termino POR {printf("POR\n");} factor
-	|termino DIVIDIDO {printf("DIVIDIDO\n");} factor
-	|factor
+	termino POR {printf("POR\n");} factor 
+	|termino DIVIDIDO {printf("DIVIDIDO\n");} factor 
+	|factor 
 	;
 	
 factor:
-	identificador
+	ID {printf("ID\n");}
 	|PAR_ABRE expresion PAR_CIERRA  { $$ = $2; } 
 	|unaryif
 	|qequal
@@ -115,7 +120,7 @@ factor:
 	;
 	
 expresion_str:
-	|string CONCATENACION {printf("CONCATENACION\n");} string
+	CTE_STRING {printf("CTE_STRING\n");} CONCATENACION {printf("CONCATENACION\n");} CTE_STRING {printf("CTE_STRING\n");}
 	|CTE_STRING {printf("CTE_STRING\n");}
 	;
 	
@@ -146,7 +151,7 @@ qequal:
 	;
 	
 entrada:
-	GET {printf("GET\n");} identificador FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
+	GET {printf("GET\n");} ID {printf("ID\n"); if (verificar_tipoVariable(yylval) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla(yylval));}} FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
 	;
 	
 salida:
@@ -186,20 +191,16 @@ expresiones:
 	| expresion_str
 	;
 	
-identificador:
-	ID {printf("ID\n");}
-	;
-	
 entero:
-	CTE_ENTERA {printf("CTE_ENTERA\n");}
+	CTE_ENTERA {printf("CTE_ENTERA\n"); agregar_tipoVarible_a_tabla(posTbl,0);}
 	;	
 	
 real:
-	CTE_REAL {printf("CTE_REAL\n");}
+	CTE_REAL {printf("CTE_REAL\n"); agregar_tipoVarible_a_tabla(posTbl,1);}
 	;
 	
 string:
-	CTE_STRING {printf("CTE_STRING\n");}
+	CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla(posTbl,2);}
 	;
 	
 dato:
@@ -218,21 +219,18 @@ elementolista:
 	;
 	
 tipo:
-	INT {printf("INT\n");}
-	|REAL {printf("REAL\n");}
-	|STRING {printf("STRING\n");}
+	INT {printf("INT\n"); agregar_tipoVarible_a_tabla(posTbl,0);}
+	|REAL {printf("REAL\n"); agregar_tipoVarible_a_tabla(posTbl,1);}
+	|STRING {printf("STRING\n"); agregar_tipoVarible_a_tabla(posTbl,2);}
 	;
-	
 %%
 
 
-int yyerror(char const*)
-{
+int yyerror(char const*) {
 	printf("Error de sintaxis");
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	if((yyin = fopen(argv[1],"rt")) == NULL)
 	{	
 		printf("No se puede abrir el archivo\n");
@@ -242,7 +240,8 @@ int main(int argc, char *argv[])
 		yyparse();
 	}
 	fclose(yyin);
+	
 	imprimir_tabla_de_simbolos();
+	
 	return 0;
-
 }
