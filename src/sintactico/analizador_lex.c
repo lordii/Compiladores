@@ -7,22 +7,22 @@
 #include <YYTAB.h>
 
 FILE *yyin;
-int yyval;
+int tToken;
+int yylval;
 char caracter;
 char token[100];
 int longitud;
 double cte_float;
 int cte_int;
-
 struct ts {
 	int numero;
 	char nombre[100];
 	char tipo[100];
 	struct ts *siguiente;
 };
-
 typedef struct ts tabla;
 tabla* tabla_simbolos = NULL;
+tabla* actual = NULL;
 char* palabras_res[]={"DEFVAR","ENDDEF","CONST","Int","Real","String","GET","PUT",
 		      "REPEAT","UNTIL","IF","THEN","ELSE","ENDIF","QEqual","AND","OR"};
 
@@ -33,22 +33,39 @@ void completa_token(char dest[100], char c) {
 void inicializa_token(char tok[100]) {
     memset(tok, (int) NULL, 100);
 }
-//cambiar tipo en sintactico?
+
 int insertar_en_tabla_simbolos(char nombre[100]) {
-	tabla *nuevo_reg =(tabla *)malloc(sizeof(tabla));
-	nuevo_reg->siguiente=tabla_simbolos;
-
-	if (tabla_simbolos != NULL)
-		nuevo_reg->numero = tabla_simbolos->numero + 1;
-	else
-       	nuevo_reg->numero = 0;
-		
+	tabla *nuevo_reg = (tabla *)malloc(sizeof(tabla));
+	
+	nuevo_reg->siguiente = NULL;
 	strcpy(nuevo_reg->nombre,nombre);
-	//
-	strcpy(nuevo_reg->tipo,"sin tipo");
-	tabla_simbolos = nuevo_reg;
-
+	strcpy(nuevo_reg->tipo,"");
+	
+	if (tabla_simbolos == NULL) {
+		nuevo_reg->numero = 1;
+		tabla_simbolos = nuevo_reg;
+	} else {
+		actual->siguiente = nuevo_reg;
+		nuevo_reg->numero = actual->numero + 1;
+	}
+	actual = nuevo_reg;
 	return nuevo_reg->numero;
+	
+}
+
+void imprimir_tabla_de_simbolos() {
+	tabla *act = tabla_simbolos; 
+	FILE * archivoTablaSimbolos;
+	
+	archivoTablaSimbolos = fopen("./tablaSimbolos.txt","w+t");
+	fprintf(archivoTablaSimbolos, "\nTABLA DE SIMBOLOS:\n=================\n\n");
+	
+	while(act != NULL) { 
+ 	    fprintf(archivoTablaSimbolos, "Número: %i\tNombre: %s\tTipo: %s\n",act->numero,act->nombre,act->tipo);
+ 	    act = act->siguiente;
+	}
+	
+	fclose(archivoTablaSimbolos);
 }
 
 int existe_en_tabla_simbolos(char* nombre) {
@@ -62,13 +79,58 @@ int existe_en_tabla_simbolos(char* nombre) {
 	    return -1;
 }
 
-void imprimir_tabla_de_simbolos() {
-	tabla *act = tabla_simbolos; 
-	printf("\nTABLA DE SIMBOLOS:\n=================\n\n");
-	while(act != NULL) { 
- 	    printf("Numero :%i\nNombre: %s\nTipo: %s\n",act->numero,act->nombre,act->tipo);
- 	    act = act->siguiente;
+void agregar_tipoVarible_a_tabla(int posTbl, int type) {
+	tabla *act = tabla_simbolos;
+	
+	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
+		act = act->siguiente;
+	
+	if (act->numero == posTbl) {
+		switch (type) {
+			case 0:
+				strcpy(act->tipo,"INT");
+				break;
+			case 1:
+				strcpy(act->tipo,"REAL");
+				break;
+			case 2:
+				strcpy(act->tipo,"STRING");
+				break;
+		} 
 	}
+}
+
+int verificar_tipoVariable(int posTbl) {
+	tabla *act = tabla_simbolos;
+	int result;
+	
+	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
+		act = act->siguiente;
+	
+	if (act->numero == posTbl) {
+		if (strcmp(act->tipo,"")) {
+			result = 0;
+		} else {
+			result = 1;
+		}
+	} else {
+		result = 1;
+	}
+	
+	return result;
+}
+
+char* nombre_varTabla(int posTbl) {
+	tabla *act = tabla_simbolos;
+	
+	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
+		act = act->siguiente;
+	
+	if (act->numero == posTbl) {
+		return act->nombre;
+	}
+	
+	return "";
 }
 
 int es_palabra_reservada(char* palabra) {
@@ -77,7 +139,6 @@ int es_palabra_reservada(char* palabra) {
 	int i = 0;
 	strcpy(palabra_ingresada,palabra);
 	while((i<=16) && !es_reservada) {
-        //Comparo palabra caracter a caracter...
 		if (strcmp(palabra_ingresada,palabras_res[i]) == 0) {
 		    es_reservada = 1;
  	    } else {
@@ -133,7 +194,7 @@ int fin_cte() {
 		if (pos_en_tabla == -1)
 			pos_en_tabla = insertar_en_tabla_simbolos(token);
 
-		yyval = CTE_ENTERA;
+		tToken = CTE_ENTERA;
 		return pos_en_tabla;
 	}
 }
@@ -171,7 +232,7 @@ int fin_real() {
     if (pos_en_tabla == -1)
        	pos_en_tabla = insertar_en_tabla_simbolos(token);
 
-    yyval = CTE_REAL;
+    tToken = CTE_REAL;
     return pos_en_tabla;
 }
 
@@ -199,7 +260,7 @@ int fin_str() {
 	    if (pos_en_tabla == -1)
 	        pos_en_tabla = insertar_en_tabla_simbolos(token);
 
-	    yyval = CTE_STRING;
+	    tToken = CTE_STRING;
 	    return pos_en_tabla;
 	}
 }
@@ -227,18 +288,17 @@ int fin_id() {
 
     pos_en_tabla = existe_en_tabla_simbolos(token);
 
-    //Si no esta en la tabla de simbolos...
     if(pos_en_tabla == -1) {
         es_reservada = es_palabra_reservada(token);
         if (es_reservada != -1) {
-        	yyval = es_reservada + AUX_INICIO_TOKENS;
+        	tToken = es_reservada + AUX_INICIO_TOKENS;
         	return -1;
         } else {
-		    yyval = ID;
+		    tToken = ID;
             pos_en_tabla = insertar_en_tabla_simbolos(token);
         }
     } else {
-	    yyval = ID;
+	    tToken = ID;
 	}
 
     return pos_en_tabla;
@@ -250,7 +310,7 @@ int agr_op() {
 }
 
 int op_sum() {
-    yyval = MAS;
+    tToken = MAS;
     return -1;
 }
 
@@ -261,19 +321,19 @@ int inic_concat() {
 
 int op_concat() {
      agr_op();
-     yyval = CONCATENACION;
+     tToken = CONCATENACION;
      return -1;
 }
 
 int op_res() {
 	agr_op();
-    yyval = MENOS;
+    tToken = MENOS;
     return -1;
 }
 
 int op_mult() {
 	agr_op();
-    yyval = POR;
+    tToken = POR;
     return -1;
 }
 
@@ -283,7 +343,7 @@ int inic_div() {
 }
 
 int op_div() {
-    yyval = DIVIDIDO;
+    tToken = DIVIDIDO;
 	return -1;
 }
 
@@ -304,100 +364,100 @@ int inic_menor_igual(){
 
 int op_neg() {
 	agr_op();
-    yyval = NOT;
+    tToken = NOT;
     return -1;
 }
 
 int op_asig() {
-    yyval = SIG_ASIGNACION;
+    tToken = SIG_ASIGNACION;
     return -1;
 }
 
 int op_menor() {
-    yyval = MENOR;
+    tToken = MENOR;
     return -1;
 }
 
 int op_menor_igual() {
 	agr_op();
-    yyval = MENOR_IGUAL;
+    tToken = MENOR_IGUAL;
     return -1;
 }
 
 int op_mayor() {
-    yyval = MAYOR;
+    tToken = MAYOR;
     return -1;
 }
 
 int op_mayor_igual() {
 	agr_op();
-    yyval = MAYOR_IGUAL;
+    tToken = MAYOR_IGUAL;
     return -1;
 }
 
 int op_distinto() {
 	agr_op();
-    yyval = DISTINTO;
+    tToken = DISTINTO;
     return -1;
 }
 
 int op_igual_igual() {
 	agr_op();
-    yyval = IGUAL;
+    tToken = IGUAL;
     return -1;
 }
 
 int par_apertura() {
 	agr_op();
-    yyval = PAR_ABRE;
+    tToken = PAR_ABRE;
     return -1;
 }
 
 int par_cierre() {
 	agr_op();
-    yyval = PAR_CIERRA;
+    tToken = PAR_CIERRA;
     return -1;
 }
 
 int cor_apertura() {
 	agr_op();
-    yyval = COR_ABRE;
+    tToken = COR_ABRE;
     return -1;
 }
 
 int cor_cierre() {
 	agr_op();
-    yyval = COR_CIERRA;
+    tToken = COR_CIERRA;
     return -1;
 }
 
 int op_define() {
 	agr_op();
-    yyval = DEFINE;
+    tToken = DEFINE;
     return -1;
 }
 
 int op_separador() {
 	agr_op();
-    yyval = SEPARDOR_COMA;
+    tToken = SEPARDOR_COMA;
     return -1;
 }
 
 int op_unaryif() {
 	agr_op();
-    yyval = SIG_UNARYIF;
+    tToken = SIG_UNARYIF;
     return -1;
 }
 
 int fin_sentencia() {
 	agr_op();
-    yyval = FIN_SENTENCIA;
+    tToken = FIN_SENTENCIA;
     return -1;
 }
 
 int separador() {
 	agr_op();
-    yyval = SEPARADOR;
+    tToken = SEPARADOR;
     return -1;
 }
 
@@ -440,7 +500,7 @@ int matriz_nvo_estado[19][21] = {
 	{14,14,14,14,14,14,14,14,-1,14,14,14,14,14,14,14,14,14,14,14,14},
 	{99,99,99,99,90,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99,99}
 };
-//Matriz de punteros a funciones semanticas...
+
 int (* matriz_punteros[19][21])(void) = {
 	{inic_id,inic_cte,inic_str,inic_real,inic_concat,op_res,op_mult,inic_div,op_neg,op_define,fin_sentencia,op_separador,op_unaryif,inic_igual_igual,inic_menor_igual,inic_mayor_igual,par_apertura,par_cierre,cor_apertura,cor_cierre,sin_transicion},
 	{cont_str,cont_str,fin_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str,cont_str},
@@ -548,7 +608,6 @@ int yylex() {
     while ((estado != estado_final)&&(estado != estado_final_retorno)) {
         if (feof(yyin) != 0) {
             if (estado == 0) {
-				//printf ( "FIN_DE_COMPILACION" );
                 return FIN_DE_COMPILACION;
             } else {
                 printf ("\nFin de archivo inesperado!!\n");
@@ -582,7 +641,8 @@ int yylex() {
     if (estado == estado_final_retorno) {
 		ungetc(caracter,yyin);
     }
-	//printf ( "%i + %i ",token_resultante,yyval);
-
-	return yyval;
+	
+	yylval = token_resultante;
+	//printf("%d ",yylval);
+	return tToken;
 }
