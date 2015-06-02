@@ -14,6 +14,19 @@ extern FILE *yyin;
 extern int yylval;
 int yystopparser=0;
 int posTbl;
+struct nodo {
+	char elemento[100];
+	struct nodo *izq, *der;
+};
+typedef struct nodo arbol;
+arbol* arbol_sintactico = NULL;
+arbol* aptr =  NULL;
+arbol* eptr =  NULL;
+arbol* tptr =  NULL;
+arbol* fptr =  NULL;
+FILE * archivoArbolSintactico;
+arbol* crear_nodo(char* elem, arbol* ni, arbol* nd);
+arbol* crear_hoja(char* elem);
 %}
 
 %token DEFVAR
@@ -91,7 +104,7 @@ accion:
 	;
 	
 asignacion:
-	ID {printf("ID\n"); if (verificar_tipoVariable(yylval) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla(yylval));}} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
+	ID {printf("ID\n"); if (verificar_tipoVariable(yylval) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla(yylval));} posTbl=yylval;} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); aptr = crear_nodo("=", crear_hoja(nombre_varTabla(posTbl)), eptr); arbol_sintactico = aptr;}
 	;
 	
 definicionconstante:
@@ -101,22 +114,22 @@ definicionconstante:
 expresion:
 	expresion MAS {printf("MAS\n");} termino 
 	|expresion MENOS {printf("MENOS\n");} termino 
-	|termino 
+	|termino {eptr = tptr;}
 	;
 	
 termino:
 	termino POR {printf("POR\n");} factor 
 	|termino DIVIDIDO {printf("DIVIDIDO\n");} factor 
-	|factor 
+	|factor {tptr = fptr;}
 	;
 	
 factor:
-	ID {printf("ID\n");}
+	ID {printf("ID\n"); if (verificar_tipoVariable(yylval) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla(yylval));} fptr = crear_hoja(nombre_varTabla(yylval));}
 	|PAR_ABRE expresion PAR_CIERRA  { $$ = $2; } 
 	|unaryif
 	|qequal
-	|CTE_ENTERA {printf("CTE_ENTERA\n");}
-	|CTE_REAL {printf("CTE_REAL\n");}
+	|CTE_ENTERA {printf("CTE_ENTERA\n"); fptr = crear_hoja(nombre_varTabla(yylval));}
+	|CTE_REAL {printf("CTE_REAL\n"); fptr = crear_hoja(nombre_varTabla(yylval));}
 	;
 	
 expresion_str:
@@ -225,6 +238,53 @@ tipo:
 	;
 %%
 
+void imprimir_nodos(arbol* arbol_sint) {
+	if (arbol_sint != NULL) {
+		fprintf(archivoArbolSintactico, "%s\n\t", arbol_sint->elemento);
+		imprimir_nodos(arbol_sint->izq);
+		imprimir_nodos(arbol_sint->der);
+	}
+}
+
+void imprimir_nodos_inorder(arbol* arbol_sint) {
+	if (arbol_sint != NULL) {
+		imprimir_nodos_inorder(arbol_sint->izq);
+		fprintf(archivoArbolSintactico, "%s ", arbol_sint->elemento);
+		imprimir_nodos_inorder(arbol_sint->der);
+	}
+}
+
+void imprimir_arbol() {	
+	archivoArbolSintactico = fopen("./arbolSintactico.txt","w+t");
+	fprintf(archivoArbolSintactico, "\nARBOL SINTACTICO:\n================\n\n");
+	arbol *act = arbol_sintactico;
+	imprimir_nodos(act);
+	
+	fprintf(archivoArbolSintactico, "\n================\n\n");
+	imprimir_nodos_inorder(act);
+	
+	fclose(archivoArbolSintactico);
+}
+
+arbol* crear_nodo(char* elem, arbol* ni, arbol* nd) {
+	arbol *nuevo_nodo = (arbol *)malloc(sizeof(arbol));
+	
+	strcpy(nuevo_nodo->elemento,elem);
+	nuevo_nodo->izq = ni;
+	nuevo_nodo->der = nd;
+	
+	return nuevo_nodo;
+}
+
+arbol* crear_hoja(char* elem) {
+	arbol *nueva_hoja = (arbol *)malloc(sizeof(arbol));
+	
+	strcpy(nueva_hoja->elemento,elem);
+	nueva_hoja->izq = NULL;
+	nueva_hoja->der = NULL;
+	
+	return nueva_hoja;
+}
 
 int yyerror(char const*) {
 	printf("Error de sintaxis");
@@ -242,6 +302,7 @@ int main(int argc, char *argv[]) {
 	fclose(yyin);
 	
 	imprimir_tabla_de_simbolos();
+	imprimir_arbol();
 	
 	return 0;
 }
