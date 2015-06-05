@@ -112,13 +112,13 @@ definicionconstante:
 	;
 	
 expresion:
-	expresion MAS {printf("MAS\n");} termino 
+	expresion MAS {printf("MAS\n");} termino {eptr = crear_nodo("+",eptr,tptr);}
 	|expresion MENOS {printf("MENOS\n");} termino 
 	|termino {eptr = tptr;}
 	;
 	
 termino:
-	termino POR {printf("POR\n");} factor 
+	termino POR {printf("POR\n");} factor {tptr = crear_nodo("*",tptr,fptr);}
 	|termino DIVIDIDO {printf("DIVIDIDO\n");} factor 
 	|factor {tptr = fptr;}
 	;
