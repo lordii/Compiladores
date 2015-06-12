@@ -32,6 +32,14 @@ arbol* cos2ptr = NULL;	//aux comparacionstr
 arbol* uptr = NULL;		//unaryif
 arbol* cuptr = NULL;	//cuerpo unaryif
 arbol* qptr = NULL;		//qequal
+arbol* lptr = NULL;		//lista
+arbol* l2ptr = NULL;	//aux lista
+arbol* acptr = NULL;	//acciones
+arbol* ac2ptr = NULL;	//aux acciones
+arbol* rptr = NULL;		//accion
+arbol* iptr = NULL;		//if
+arbol* icptr = NULL;	//cuerpo if
+arbol* reptr = NULL;	//repeat
 char signoc[5];
 char signo[5];
 FILE * archivoArbolSintactico;
@@ -99,17 +107,17 @@ declaracionvar:
 	;
 	
 acciones:
-	accion
-	|acciones accion
+	accion {acptr = rptr;}
+	|acciones accion {acptr = crear_nodo(";", acptr, rptr);}
 	;
 	
 accion:
-	asignacion
-	|definicionconstante
-	|entrada
+	asignacion {rptr = aptr;}
+	|definicionconstante 
+	|entrada 
 	|salida	
-	|repeat
-	|if
+	|repeat {rptr = reptr;}
+	|if {rptr = iptr;}
 	;
 	
 asignacion:
@@ -153,16 +161,20 @@ idstring:
 	;
 	
 repeat:
-	REPEAT {printf("REPEAT\n");} acciones UNTIL {printf("UNTIL\n");} condicion FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
+	REPEAT {printf("REPEAT\n");} acciones UNTIL {printf("UNTIL\n");} condicion FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); reptr = crear_nodo("REPEAT", acptr, cptr);}
 	;
 	
 if:
-	IF {printf("IF\n");} condicion THEN cuerpoif ENDIF {printf("ENDIF\n");}
+	IF {printf("IF\n");} condicion THEN cuerpoif ENDIF {printf("ENDIF\n"); iptr = crear_nodo("IF", cptr, icptr); }
 	;
 	
 cuerpoif:
-	acciones ELSE {printf("ELSE\n");} acciones
-	|acciones 
+	acciones2 ELSE {printf("ELSE\n");} acciones {icptr = crear_nodo("ELSE", ac2ptr, acptr);}
+	|acciones {icptr = acptr;}
+	;
+	
+acciones2:
+	acciones {ac2ptr = acptr;}
 	;
 	
 unaryif:
@@ -183,7 +195,7 @@ expresion_str2:
 	;
 	
 qequal:
-	QEQUAL {printf("QEQUAL\n");} PAR_ABRE expresion SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} lista PAR_CIERRA
+	QEQUAL {printf("QEQUAL\n");} PAR_ABRE expresion2 SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} lista PAR_CIERRA {qptr = crear_nodo("QEqual", e2ptr, lptr);}
 	;
 	
 entrada:
@@ -259,12 +271,12 @@ dato:
 	;
 	
 lista:
-	COR_ABRE {printf("COR_ABRE\n");} elementolista COR_CIERRA {printf("COR_CIERRA\n");}
+	COR_ABRE {printf("COR_ABRE\n");} elementolista COR_CIERRA {printf("COR_CIERRA\n"); lptr = l2ptr;}
 	;
 	
 elementolista:
-	expresion
-	|elementolista SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} expresion
+	expresion {l2ptr = eptr;}
+	|elementolista SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} expresion {l2ptr = crear_nodo(",", l2ptr, eptr);}
 	;
 	
 tipo:
@@ -294,7 +306,7 @@ void imprimir_arbol() {
 	archivoArbolSintactico = fopen("./arbolSintactico.txt","w+t");
 	fprintf(archivoArbolSintactico, "\nARBOL SINTACTICO:\n================\n\n");
 	/* cambiar esto para mostrar una cosa u otra */
-	arbol_sintactico = aptr;
+	arbol_sintactico = iptr;
 	imprimir_nodos(arbol_sintactico);
 	
 	fprintf(archivoArbolSintactico, "\n\n================\n\n");
