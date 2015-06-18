@@ -19,9 +19,11 @@ struct nodo {
 };
 typedef struct nodo arbol;
 arbol* arbol_sintactico = NULL;
+arbol* pptr = NULL;		//programa
 arbol* aptr = NULL; 	//asignacion
 arbol* eptr = NULL; 	//expresion
 arbol* e2ptr = NULL;	//aux expresion
+arbol* e3ptr = NULL;	//expresiones
 arbol* tptr = NULL;		//termino
 arbol* fptr = NULL;		//factor
 arbol* cptr = NULL;		//condicion
@@ -40,6 +42,8 @@ arbol* rptr = NULL;		//accion
 arbol* iptr = NULL;		//if
 arbol* icptr = NULL;	//cuerpo if
 arbol* reptr = NULL;	//repeat
+arbol* sptr = NULL;		//salida
+arbol* enptr = NULL;	//entrada
 char signoc[5];
 char signo[5];
 FILE * archivoArbolSintactico;
@@ -93,8 +97,8 @@ arbol* crear_hoja(char* elem);
 %%
 
 programa:
-	sentenciadeclaracionvar acciones
-	|acciones
+	sentenciadeclaracionvar acciones {pptr = acptr;}
+	|acciones {pptr = acptr;}
 	;
 	
 sentenciadeclaracionvar:
@@ -107,15 +111,15 @@ declaracionvar:
 	;
 	
 acciones:
-	accion {acptr = rptr;}
-	|acciones accion {acptr = crear_nodo(";", acptr, rptr);}
+	acciones accion {acptr = crear_nodo(";", acptr, rptr);}
+	|accion {acptr = rptr;}
 	;
 	
 accion:
 	asignacion {rptr = aptr;}
 	|definicionconstante 
-	|entrada 
-	|salida	
+	|entrada {rptr = enptr;}
+	|salida	{rptr = sptr;}
 	|repeat {rptr = reptr;}
 	|if {rptr = iptr;}
 	;
@@ -199,11 +203,11 @@ qequal:
 	;
 	
 entrada:
-	GET {printf("GET\n");} ID {printf("ID\n"); if (verificar_tipoVariable($3) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($3));}} FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
+	GET {printf("GET\n");} ID {printf("ID\n"); if (verificar_tipoVariable($3) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($3));}} FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); enptr = crear_nodo("GET", crear_hoja(nombre_varTabla($3)), NULL);}
 	;
 	
 salida:
-	PUT {printf("PUT\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n");}
+	PUT {printf("PUT\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); sptr = crear_nodo("PUT", e3ptr, NULL);}
 	;
 	
 condicion:
@@ -248,8 +252,8 @@ comparacion_str2:
 	;
 	
 expresiones:
-	expresion
-	|expresion_str
+	expresion {e3ptr = eptr;}
+	|expresion_str {e3ptr = e2ptr;}
 	;
 	
 entero:
@@ -290,27 +294,39 @@ void imprimir_nodos(arbol* arbol_sint) {
 	if (arbol_sint != NULL) {
 		fprintf(archivoArbolSintactico, "%s ", arbol_sint->elemento);
 		imprimir_nodos(arbol_sint->izq);
-		imprimir_nodos(arbol_sint->der);
+		//imprimir_nodos(arbol_sint->der);
 	}
 }
 
-void imprimir_nodos_inorder(arbol* arbol_sint) {
+void imprimir_nodos_inorder(arbol* arbol_sint, int i) {
 	if (arbol_sint != NULL) {
-		imprimir_nodos_inorder(arbol_sint->izq);
-		fprintf(archivoArbolSintactico, "%s ", arbol_sint->elemento);
-		imprimir_nodos_inorder(arbol_sint->der);
+		fprintf(archivoArbolSintactico, "nodo %d : ", i);
+		if (arbol_sint->izq == NULL) {
+			fprintf(archivoArbolSintactico, "-,");
+		} else {
+			fprintf(archivoArbolSintactico, "%d,", i+1);
+		}
+		fprintf(archivoArbolSintactico, "%s,", arbol_sint->elemento);
+		if (arbol_sint->der == NULL) {
+			fprintf(archivoArbolSintactico, "-\n");
+		} else {
+			fprintf(archivoArbolSintactico, "%d\n", i+2);
+		}
+		imprimir_nodos_inorder(arbol_sint->izq, i+1);
+		imprimir_nodos_inorder(arbol_sint->der, i+2);
 	}
 }
 
 void imprimir_arbol() {	
-	archivoArbolSintactico = fopen("./arbolSintactico.txt","w+t");
+	int i = 1;
+	archivoArbolSintactico = fopen("./Intermedia.txt","w+t");
 	fprintf(archivoArbolSintactico, "\nARBOL SINTACTICO:\n================\n\n");
-	/* cambiar esto para mostrar una cosa u otra */
-	arbol_sintactico = iptr;
-	imprimir_nodos(arbol_sintactico);
+	arbol_sintactico = pptr;
+	imprimir_nodos_inorder(arbol_sintactico, i);
 	
-	fprintf(archivoArbolSintactico, "\n\n================\n\n");
-	imprimir_nodos_inorder(arbol_sintactico);
+	fprintf(archivoArbolSintactico, "\n\nARBOL SINTACTICO:\n================\n\n");
+	
+	imprimir_nodos(arbol_sintactico);
 	
 	fclose(archivoArbolSintactico);
 }
