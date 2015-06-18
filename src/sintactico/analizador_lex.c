@@ -600,11 +600,6 @@ int yylex() {
 	estado_final_retorno = 99;
 	inicializa_token(token);
 
-    if (feof(yyin) != 0) {
-       	printf ("\nEl archivo esta vacio!!\n");
-       	return 1;
-    }
-
     while ((estado != estado_final)&&(estado != estado_final_retorno)) {
         if (feof(yyin) != 0) {
             if (estado == 0) {
