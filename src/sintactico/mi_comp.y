@@ -13,8 +13,10 @@ extern "C" char* nombre_varTabla(int posT);
 extern FILE *yyin;
 int yystopparser=0;
 int posTbl;
+int nroNodo;
 struct nodo {
 	char elemento[100];
+	int nroN;
 	struct nodo *izq, *der;
 };
 typedef struct nodo arbol;
@@ -294,35 +296,53 @@ void imprimir_nodos(arbol* arbol_sint) {
 	if (arbol_sint != NULL) {
 		fprintf(archivoArbolSintactico, "%s ", arbol_sint->elemento);
 		imprimir_nodos(arbol_sint->izq);
-		//imprimir_nodos(arbol_sint->der);
+		imprimir_nodos(arbol_sint->der);
 	}
 }
 
-void imprimir_nodos_inorder(arbol* arbol_sint, int i) {
+void nroNodoColocar(arbol* arbol_sint) {
 	if (arbol_sint != NULL) {
-		fprintf(archivoArbolSintactico, "nodo %d : ", i);
+		nroNodoColocar(arbol_sint->izq);
+		if (arbol_sint->izq != NULL) {
+			nroNodo = nroNodo + 1;
+		}
+		arbol_sint->nroN = nroNodo;
+		if (arbol_sint->der != NULL) {
+			nroNodo = nroNodo + 1;
+		}
+		nroNodoColocar(arbol_sint->der);
+	}
+}
+
+void imprimir_nodos_inorder(arbol* arbol_sint) {
+	char linea[50], lineaf[50];
+	char sNro[20];
+	if (arbol_sint != NULL) {
+		imprimir_nodos_inorder(arbol_sint->izq);
 		if (arbol_sint->izq == NULL) {
-			fprintf(archivoArbolSintactico, "-,");
+			strcpy(linea,"-");
 		} else {
-			fprintf(archivoArbolSintactico, "%d,", i+1);
+			itoa(arbol_sint->izq->nroN, sNro, 10);
+			strcpy(linea, sNro);
 		}
-		fprintf(archivoArbolSintactico, "%s,", arbol_sint->elemento);
 		if (arbol_sint->der == NULL) {
-			fprintf(archivoArbolSintactico, "-\n");
+			strcpy(lineaf,"-");
 		} else {
-			fprintf(archivoArbolSintactico, "%d\n", i+2);
+			itoa(arbol_sint->der->nroN, sNro, 10);
+			strcpy(lineaf, sNro);
 		}
-		imprimir_nodos_inorder(arbol_sint->izq, i+1);
-		imprimir_nodos_inorder(arbol_sint->der, i+2);
+		fprintf(archivoArbolSintactico, "nodo %d : %s,%s,%s\n", arbol_sint->nroN, linea, arbol_sint->elemento, lineaf);
+		imprimir_nodos_inorder(arbol_sint->der);
 	}
 }
 
 void imprimir_arbol() {	
-	int i = 1;
+	nroNodo = 1;
 	archivoArbolSintactico = fopen("./Intermedia.txt","w+t");
 	fprintf(archivoArbolSintactico, "\nARBOL SINTACTICO:\n================\n\n");
 	arbol_sintactico = pptr;
-	imprimir_nodos_inorder(arbol_sintactico, i);
+	nroNodoColocar(arbol_sintactico);
+	imprimir_nodos_inorder(arbol_sintactico);
 	
 	fprintf(archivoArbolSintactico, "\n\nARBOL SINTACTICO:\n================\n\n");
 	
