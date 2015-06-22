@@ -10,10 +10,13 @@ extern "C" void imprimir_tabla_de_simbolos();
 extern "C" void agregar_tipoVarible_a_tabla(int posT, int type);
 extern "C" int verificar_tipoVariable(int posT);
 extern "C" char* nombre_varTabla(int posT);
+extern "C" void agrConstante(int posTbl);
+extern "C" int esConstante(int posTbl);
 extern FILE *yyin;
 int yystopparser=0;
 int posTbl;
 int nroNodo;
+int encError;
 struct nodo {
 	char elemento[100];
 	int nroN;
@@ -52,6 +55,7 @@ FILE * archivoArbolSintactico;
 arbol* crear_nodo(char* elem, arbol* ni, arbol* nd);
 arbol* crear_hoja(char* elem);
 %}
+
 %token DEFVAR
 %token ENDDEF
 %token CONST
@@ -99,7 +103,7 @@ arbol* crear_hoja(char* elem);
 %%
 
 programa:
-	sentenciadeclaracionvar acciones {pptr = acptr;}
+	sentenciadeclaracionvar acciones {pptr = acptr; if (encError == 0) {imprimir_arbol();}}
 	|acciones {pptr = acptr;}
 	;
 	
@@ -127,11 +131,11 @@ accion:
 	;
 	
 asignacion:
-	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1));}} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); aptr = crear_nodo("=", crear_hoja(nombre_varTabla($1)), eptr);}
+	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} if (esConstante($1) == 1) {printf("'%s' no puede cambiar su valor porque esta declarada como constante\n", nombre_varTabla($1)); encError=1;}} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); aptr = crear_nodo("=", crear_hoja(nombre_varTabla($1)), e3ptr);}
 	;
 	
 definicionconstante:
-	CONST {printf("CONST\n");} ID {printf("ID\n");} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} dato FIN_SENTENCIA
+	CONST {printf("CONST\n");} ID {printf("ID\n"); posTbl=$3;} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} dato FIN_SENTENCIA 
 	;
 	
 expresion:
@@ -147,7 +151,7 @@ termino:
 	;
 	
 factor:
-	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1));} fptr = crear_hoja(nombre_varTabla($1));}
+	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} fptr = crear_hoja(nombre_varTabla($1));}
 	|PAR_ABRE expresion PAR_CIERRA  {fptr = eptr;} 
 	|unaryif {fptr = uptr;}
 	|qequal {fptr = qptr;}
@@ -162,7 +166,7 @@ expresion_str:
 	;
 	
 idstring:
-	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1));} tptr = crear_hoja(nombre_varTabla($1));}
+	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} tptr = crear_hoja(nombre_varTabla($1));}
 	|CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); tptr = crear_hoja(nombre_varTabla($1));}
 	;
 	
@@ -205,16 +209,16 @@ qequal:
 	;
 	
 entrada:
-	GET {printf("GET\n");} ID {printf("ID\n"); if (verificar_tipoVariable($3) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($3));}} FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); enptr = crear_nodo("GET", crear_hoja(nombre_varTabla($3)), NULL);}
+	GET {printf("GET\n");} ID {printf("ID\n"); if (verificar_tipoVariable($3) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($3)); encError=1;} if (esConstante($3) == 1) {printf("'%s' no puede cambiar su valor porque esta declarada como constante\n", nombre_varTabla($3)); encError=1;}} FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); enptr = crear_nodo("GET", crear_hoja(nombre_varTabla($3)), NULL);}
 	;
 	
 salida:
-	PUT {printf("PUT\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); sptr = crear_nodo("PUT", e3ptr, NULL);}
+	PUT {printf("PUT\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); sptr = crear_nodo("PUT", eptr, NULL);}
 	;
 	
 condicion:
 	comparacion2 oper_cond comparacion {cptr = crear_nodo(signoc, co2ptr, coptr);}
-	|NOT {printf("NOT\n");} comparacion
+	|NOT {printf("NOT\n");} comparacion {cptr = crear_nodo("NOT", coptr, NULL);}
 	|comparacion2 {cptr = co2ptr;}
 	|comparacion_str2 oper_cond comparacion_str {cptr = crear_nodo(signoc, cos2ptr, cosptr);}
 	|comparacion_str2 {cptr = cos2ptr;}
@@ -254,20 +258,20 @@ comparacion_str2:
 	;
 	
 expresiones:
-	expresion {e3ptr = eptr;}
-	|expresion_str {e3ptr = e2ptr;}
+	expresion2 {e3ptr = e2ptr;}
+	|expresion_str2 {e3ptr = e2ptr;}
 	;
 	
 entero:
-	CTE_ENTERA {printf("CTE_ENTERA\n"); agregar_tipoVarible_a_tabla($1,0);}
+	CTE_ENTERA {printf("CTE_ENTERA\n"); agregar_tipoVarible_a_tabla($1,0); if (verificar_tipoVariable(posTbl) == 0) {printf("La constante '%s' esta declarada mas de una vez\n", nombre_varTabla(posTbl)); encError=1;} else {agregar_tipoVarible_a_tabla(posTbl,0); agrConstante(posTbl);}}
 	;	
 	
 real:
-	CTE_REAL {printf("CTE_REAL\n"); agregar_tipoVarible_a_tabla($1,1);}
+	CTE_REAL {printf("CTE_REAL\n"); agregar_tipoVarible_a_tabla($1,1); if (verificar_tipoVariable(posTbl) == 0) {printf("La constante '%s' esta declarada mas de una vez\n", nombre_varTabla(posTbl)); encError=1;} else {agregar_tipoVarible_a_tabla(posTbl,1); agrConstante(posTbl);}}
 	;
 	
 string:
-	CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2);}
+	CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); if (verificar_tipoVariable(posTbl) == 0) {printf("La constante '%s' esta declarada mas de una vez\n", nombre_varTabla(posTbl)); encError=1;} else {agregar_tipoVarible_a_tabla(posTbl,2); agrConstante(posTbl);}}
 	;
 	
 dato:
@@ -286,9 +290,9 @@ elementolista:
 	;
 	
 tipo:
-	INT {printf("INT\n"); agregar_tipoVarible_a_tabla(posTbl,0);}
-	|REAL {printf("REAL\n"); agregar_tipoVarible_a_tabla(posTbl,1);}
-	|STRING {printf("STRING\n"); agregar_tipoVarible_a_tabla(posTbl,2);}
+	INT {printf("INT\n"); if (verificar_tipoVariable(posTbl) == 0) {printf("La variable '%s' esta declarada mas de una vez\n", nombre_varTabla(posTbl)); encError=1;} else {agregar_tipoVarible_a_tabla(posTbl,0);}}
+	|REAL {printf("REAL\n"); if (verificar_tipoVariable(posTbl) == 0) {printf("La variable '%s' esta declarada mas de una vez\n", nombre_varTabla(posTbl)); encError=1;} else {agregar_tipoVarible_a_tabla(posTbl,1);}}
+	|STRING {printf("STRING\n"); if (verificar_tipoVariable(posTbl) == 0) {printf("La variable '%s' esta declarada mas de una vez\n", nombre_varTabla(posTbl)); encError=1;} else {agregar_tipoVarible_a_tabla(posTbl,2);}}
 	;
 %%
 
@@ -352,7 +356,7 @@ void imprimir_arbol() {
 }
 
 arbol* crear_nodo(char* elem, arbol* ni, arbol* nd) {
-	arbol *nuevo_nodo = (arbol *)malloc(sizeof(arbol));
+	arbol* nuevo_nodo = (arbol *)malloc(sizeof(arbol));
 	
 	strcpy(nuevo_nodo->elemento,elem);
 	nuevo_nodo->izq = ni;
@@ -362,7 +366,7 @@ arbol* crear_nodo(char* elem, arbol* ni, arbol* nd) {
 }
 
 arbol* crear_hoja(char* elem) {
-	arbol *nueva_hoja = (arbol *)malloc(sizeof(arbol));
+	arbol* nueva_hoja = (arbol *)malloc(sizeof(arbol));
 	
 	strcpy(nueva_hoja->elemento,elem);
 	nueva_hoja->izq = NULL;
@@ -376,18 +380,17 @@ int yyerror(char const*) {
 }
 
 int main(int argc, char *argv[]) {
-	if((yyin = fopen(argv[1],"rt")) == NULL)
-	{	
+	encError = 0;
+	if((yyin = fopen(argv[1],"rt")) == NULL) {	
 		printf("No se puede abrir el archivo\n");
-	}
-	else
-	{
+	} else {
 		yyparse();
 	}
 	fclose(yyin);
 	
-	imprimir_tabla_de_simbolos();
-	imprimir_arbol();
+	if (encError == 0) {
+		imprimir_tabla_de_simbolos();
+	}
 	
 	return 0;
 }
