@@ -18,6 +18,7 @@ struct ts {
 	int numero;
 	char nombre[100];
 	char tipo[100];
+	char constante[2];
 	struct ts *siguiente;
 };
 typedef struct ts tabla;
@@ -40,6 +41,7 @@ int insertar_en_tabla_simbolos(char nombre[100]) {
 	nuevo_reg->siguiente = NULL;
 	strcpy(nuevo_reg->nombre,nombre);
 	strcpy(nuevo_reg->tipo,"");
+	strcpy(nuevo_reg->constante,"");
 	
 	if (tabla_simbolos == NULL) {
 		nuevo_reg->numero = 1;
@@ -61,7 +63,7 @@ void imprimir_tabla_de_simbolos() {
 	fprintf(archivoTablaSimbolos, "\nTABLA DE SIMBOLOS:\n=================\n\n");
 	
 	while(act != NULL) { 
- 	    fprintf(archivoTablaSimbolos, "Número: %i\tNombre: %s\tTipo: %s\n",act->numero,act->nombre,act->tipo);
+ 	    fprintf(archivoTablaSimbolos, "Número: %i\tNombre: %s\tTipo: %s\tConstante: %s\n",act->numero,act->nombre,act->tipo,act->constante);
  	    act = act->siguiente;
 	}
 	
@@ -97,6 +99,32 @@ void agregar_tipoVarible_a_tabla(int posTbl, int type) {
 				strcpy(act->tipo,"STRING");
 				break;
 		} 
+	}
+}
+
+void agrConstante(int posTbl) {
+	tabla *act = tabla_simbolos;
+	
+	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
+		act = act->siguiente;
+	
+	if (act->numero == posTbl) {
+			stpcpy(act->constante,"X");
+	}
+}
+
+int esConstante(int posTbl) {
+	tabla *act = tabla_simbolos;
+	
+	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
+		act = act->siguiente;
+	
+	if (act->numero == posTbl) {
+			if (strcmp(act->constante,"X") == 0) {
+				return 1;
+			} else {
+				return 0;
+			}
 	}
 }
 
