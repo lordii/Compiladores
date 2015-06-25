@@ -14,9 +14,7 @@ extern "C" void agrConstante(int posTbl);
 extern "C" int esConstante(int posTbl);
 extern FILE *yyin;
 int yystopparser=0;
-int posTbl;
-int nroNodo;
-int encError;
+int posTbl, nroNodo, encError;
 struct nodo {
 	char elemento[100];
 	int nroN;
@@ -24,33 +22,15 @@ struct nodo {
 };
 typedef struct nodo arbol;
 arbol* arbol_sintactico = NULL;
-arbol* pptr = NULL;		//programa
-arbol* aptr = NULL; 	//asignacion
-arbol* eptr = NULL; 	//expresion
-arbol* e2ptr = NULL;	//aux expresion
-arbol* e3ptr = NULL;	//expresiones
-arbol* tptr = NULL;		//termino
-arbol* fptr = NULL;		//factor
-arbol* cptr = NULL;		//condicion
-arbol* coptr = NULL;	//comparacion
-arbol* co2ptr = NULL;	//aux comparacion
-arbol* cosptr = NULL;	//comparacionstr
-arbol* cos2ptr = NULL;	//aux comparacionstr
-arbol* uptr = NULL;		//unaryif
-arbol* cuptr = NULL;	//cuerpo unaryif
-arbol* qptr = NULL;		//qequal
-arbol* lptr = NULL;		//lista
-arbol* l2ptr = NULL;	//aux lista
-arbol* acptr = NULL;	//acciones
-arbol* ac2ptr = NULL;	//aux acciones
-arbol* rptr = NULL;		//accion
-arbol* iptr = NULL;		//if
-arbol* icptr = NULL;	//cuerpo if
-arbol* reptr = NULL;	//repeat
-arbol* sptr = NULL;		//salida
-arbol* enptr = NULL;	//entrada
-char signoc[5];
-char signo[5];
+typedef struct{
+	nodo * pila [100];
+	int tope;
+}t_pila;
+t_pila pilaSentencias, pilaExpresion, pilaTermino, pilaFactor, pilaCondicion, pilaComparacion;
+nodo *  Pprograma, *  Psentencia, *  Pasignacion, *  Pexpresion, *  Ptermino, *  Pfactor,
+	 *  Pcondicion, *  Pcomparaciones, *  Psalida, *  Pentrada, *  Pdecision, *  Prepeat,
+     *  Pqequal, *  Punary, *  Plista, *  Pcuerpo;
+char signoc[5], signo[5];
 FILE * archivoArbolSintactico;
 arbol* crear_nodo(char* elem, arbol* ni, arbol* nd);
 arbol* crear_hoja(char* elem);
@@ -99,12 +79,16 @@ arbol* crear_hoja(char* elem);
 %token FIN_SENTENCIA
 %token SEPARADOR
 %token CONCATENACION
-%start programa
+%start programastart
 %%
 
+programastart:
+	programa {if (encError == 0) {imprimir_tabla_de_simbolos(); imprimir_arbol();}}
+	;
+
 programa:
-	sentenciadeclaracionvar acciones {pptr = acptr; if (encError == 0) {imprimir_arbol();}}
-	|acciones {pptr = acptr;}
+	sentenciadeclaracionvar acciones {Pprograma = desapilar(&pilaSentencias);}
+	|acciones {Pprograma = desapilar(&pilaSentencias);}
 	;
 	
 sentenciadeclaracionvar:
@@ -117,21 +101,21 @@ declaracionvar:
 	;
 	
 acciones:
-	acciones accion {acptr = crear_nodo(";", acptr, rptr);}
-	|accion {acptr = rptr;}
+	acciones accion {apilar(&pilaSentencias, crear_nodo(";", desapilar(&pilaSentencias), Psentencia));}
+	|accion {apilar(&pilaSentencias, Psentencia);}
 	;
 	
 accion:
-	asignacion {rptr = aptr;}
+	asignacion {Psentencia = Pasignacion;}
 	|definicionconstante 
-	|entrada {rptr = enptr;}
-	|salida	{rptr = sptr;}
-	|repeat {rptr = reptr;}
-	|if {rptr = iptr;}
+	|entrada {Psentencia = Pentrada;}
+	|salida	{Psentencia = Psalida;}
+	|repeat {Psentencia = Prepeat;}
+	|if {Psentencia = Pdecision;}
 	;
 	
 asignacion:
-	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} if (esConstante($1) == 1) {printf("'%s' no puede cambiar su valor porque esta declarada como constante\n", nombre_varTabla($1)); encError=1;}} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); aptr = crear_nodo("=", crear_hoja(nombre_varTabla($1)), e3ptr);}
+	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} if (esConstante($1) == 1) {printf("'%s' no puede cambiar su valor porque esta declarada como constante\n", nombre_varTabla($1)); encError=1;}} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); Pasignacion = crear_nodo("=", crear_hoja(nombre_varTabla($1)), desapilar(&pilaExpresion));}
 	;
 	
 definicionconstante:
@@ -139,91 +123,80 @@ definicionconstante:
 	;
 	
 expresion:
-	expresion MAS {printf("MAS\n");} termino {eptr = crear_nodo("+", eptr, tptr);}
-	|expresion MENOS {printf("MENOS\n");} termino {eptr = crear_nodo("-", eptr, tptr);}
-	|termino {eptr = tptr;}
+	expresion MAS {printf("MAS\n");} termino {apilar(&pilaExpresion, crear_nodo("+", desapilar(&pilaExpresion), desapilar(&pilaTermino)));}
+	|expresion MENOS {printf("MENOS\n");} termino {apilar(&pilaExpresion, crear_nodo("-", desapilar(&pilaExpresion), desapilar(&pilaTermino)));}
+	|termino {apilar(&pilaExpresion, desapilar(&pilaTermino));}
 	;
 	
 termino:
-	termino POR {printf("POR\n");} factor {tptr = crear_nodo("*", tptr, fptr);}
-	|termino DIVIDIDO {printf("DIVIDIDO\n");} factor {tptr = crear_nodo("/", tptr, fptr);}
-	|factor {tptr = fptr;}
+	termino POR {printf("POR\n");} factor {apilar(&pilaTermino, crear_nodo("*", desapilar(&pilaTermino), desapilar(&pilaFactor)));}
+	|termino DIVIDIDO {printf("DIVIDIDO\n");} factor {apilar(&pilaTermino, crear_nodo("/", desapilar(&pilaTermino), desapilar(&pilaFactor)));}
+	|factor {apilar(&pilaTermino, desapilar(&pilaFactor));}
 	;
 	
 factor:
-	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} fptr = crear_hoja(nombre_varTabla($1));}
-	|PAR_ABRE expresion PAR_CIERRA  {fptr = eptr;} 
-	|unaryif {fptr = uptr;}
-	|qequal {fptr = qptr;}
-	|CTE_ENTERA {printf("CTE_ENTERA\n"); agregar_tipoVarible_a_tabla($1,0); fptr = crear_hoja(nombre_varTabla($1));}
-	|CTE_REAL {printf("CTE_REAL\n"); agregar_tipoVarible_a_tabla($1,1); fptr = crear_hoja(nombre_varTabla($1));}
+	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} apilar(&pilaFactor, crear_hoja(nombre_varTabla($1)));}
+	|PAR_ABRE expresion PAR_CIERRA  {apilar(&pilaFactor, desapilar(&pilaExpresion));} 
+	|unaryif {apilar(&pilaFactor, Punary);}
+	|qequal {apilar(&pilaFactor, Pqequal);}
+	|CTE_ENTERA {printf("CTE_ENTERA\n"); agregar_tipoVarible_a_tabla($1,0); apilar(&pilaFactor, crear_hoja(nombre_varTabla($1)));}
+	|CTE_REAL {printf("CTE_REAL\n"); agregar_tipoVarible_a_tabla($1,1); apilar(&pilaFactor, crear_hoja(nombre_varTabla($1)));}
 	;
 	
 expresion_str:
-	idstring CONCATENACION {printf("CONCATENACION\n");} ID {printf("ID\n"); if (verificar_tipoVariable($4) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($4));} eptr = crear_nodo("++", tptr, crear_hoja(nombre_varTabla($4)));}
-	|idstring CONCATENACION {printf("CONCATENACION\n");} CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($4,2); eptr = crear_nodo("++", tptr, crear_hoja(nombre_varTabla($4)));}
-	|CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); eptr = crear_hoja(nombre_varTabla($1));}
+	idstring CONCATENACION {printf("CONCATENACION\n");} ID {printf("ID\n"); if (verificar_tipoVariable($4) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($4));} apilar(&pilaExpresion, crear_nodo("++", desapilar(&pilaTermino), crear_hoja(nombre_varTabla($4))));}
+	|idstring CONCATENACION {printf("CONCATENACION\n");} CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($4,2); apilar(&pilaExpresion, crear_nodo("++", desapilar(&pilaTermino), crear_hoja(nombre_varTabla($4))));}
+	|CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); apilar(&pilaExpresion, crear_hoja(nombre_varTabla($1)));}
 	;
 	
 idstring:
-	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} tptr = crear_hoja(nombre_varTabla($1));}
-	|CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); tptr = crear_hoja(nombre_varTabla($1));}
+	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} apilar(&pilaTermino, crear_hoja(nombre_varTabla($1)));}
+	|CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); apilar(&pilaTermino, crear_hoja(nombre_varTabla($1)));}
 	;
 	
 repeat:
-	REPEAT {printf("REPEAT\n");} acciones UNTIL {printf("UNTIL\n");} condicion FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); reptr = crear_nodo("REPEAT", acptr, cptr);}
+	REPEAT {printf("REPEAT\n");} acciones UNTIL {printf("UNTIL\n");} condicion FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); Prepeat = crear_nodo("REPEAT", desapilar(&pilaSentencias), desapilar(&pilaCondicion));}
 	;
 	
 if:
-	IF {printf("IF\n");} condicion THEN cuerpoif ENDIF {printf("ENDIF\n"); iptr = crear_nodo("IF", cptr, icptr); }
+	IF {printf("IF\n");} condicion THEN cuerpoif ENDIF {printf("ENDIF\n"); Pdecision = crear_nodo("IF", desapilar(&pilaCondicion), Pcuerpo);}
 	;
 	
 cuerpoif:
-	acciones2 ELSE {printf("ELSE\n");} acciones {icptr = crear_nodo("ELSE", ac2ptr, acptr);}
-	|acciones {icptr = acptr;}
+	acciones ELSE {printf("ELSE\n");} acciones {Pcuerpo = crear_nodo("ELSE", desapilar(&pilaSentencias), desapilar(&pilaSentencias));}
+	|acciones {Pcuerpo = desapilar(&pilaSentencias);}
 	;
-	
-acciones2:
-	acciones {ac2ptr = acptr;}
-	;
+
 	
 unaryif:
-	PAR_ABRE condicion SIG_UNARYIF {printf("UNARYIF\n");} cuerpounaryif PAR_CIERRA {uptr = crear_nodo("?", cptr, cuptr);}
+	PAR_ABRE condicion SIG_UNARYIF {printf("UNARYIF\n");} cuerpounaryif PAR_CIERRA {Punary = crear_nodo("?", desapilar(&pilaCondicion), Pcuerpo);}
 	;
 	
 cuerpounaryif:
-	expresion2 SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} expresion {cuptr = crear_nodo(",", e2ptr, eptr);}
-	|expresion_str2 SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} expresion_str {cuptr = crear_nodo(",", e2ptr, eptr);}
-	;
-	
-expresion2:
-	expresion {e2ptr = eptr;}
-	;
-	
-expresion_str2:
-	expresion_str {e2ptr = eptr;}
+	expresion SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} expresion {Pcuerpo = crear_nodo("COMA", desapilar(&pilaExpresion), desapilar(&pilaExpresion));}
+	|expresion_str SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} expresion_str {Pcuerpo = crear_nodo("COMA", desapilar(&pilaExpresion), desapilar(&pilaExpresion));}
 	;
 	
 qequal:
-	QEQUAL {printf("QEQUAL\n");} PAR_ABRE expresion2 SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} lista PAR_CIERRA {qptr = crear_nodo("QEqual", e2ptr, lptr);}
+	QEQUAL {printf("QEQUAL\n");} PAR_ABRE expresiones SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} lista PAR_CIERRA {Pqequal = crear_nodo("QEqual", desapilar(&pilaExpresion), Plista);}
 	;
 	
 entrada:
-	GET {printf("GET\n");} ID {printf("ID\n"); if (verificar_tipoVariable($3) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($3)); encError=1;} if (esConstante($3) == 1) {printf("'%s' no puede cambiar su valor porque esta declarada como constante\n", nombre_varTabla($3)); encError=1;}} FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); enptr = crear_nodo("GET", crear_hoja(nombre_varTabla($3)), NULL);}
+	GET {printf("GET\n");} ID {printf("ID\n"); if (verificar_tipoVariable($3) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($3)); encError=1;} if (esConstante($3) == 1) {printf("'%s' no puede cambiar su valor porque esta declarada como constante\n", nombre_varTabla($3)); encError=1;}} FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); Pentrada = crear_nodo("GET", NULL, crear_hoja(nombre_varTabla($3)));}
 	;
 	
 salida:
-	PUT {printf("PUT\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); sptr = crear_nodo("PUT", eptr, NULL);}
+	PUT {printf("PUT\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); Psalida = crear_nodo("PUT", NULL, desapilar(&pilaExpresion));}
 	;
 	
 condicion:
-	comparacion2 oper_cond comparacion {cptr = crear_nodo(signoc, co2ptr, coptr);}
-	|NOT {printf("NOT\n");} comparacion {cptr = crear_nodo("NOT", coptr, NULL);}
-	|comparacion2 {cptr = co2ptr;}
-	|comparacion_str2 oper_cond comparacion_str {cptr = crear_nodo(signoc, cos2ptr, cosptr);}
-	|comparacion_str2 {cptr = cos2ptr;}
-	|comparacion_str2 oper_cond comparacion {cptr = crear_nodo(signoc, cos2ptr, coptr);}
-	|comparacion2 oper_cond comparacion_str {cptr = crear_nodo(signoc, co2ptr, cosptr);}
+	comparacion oper_cond comparacion {apilar(&pilaCondicion, crear_nodo(signoc, desapilar(&pilaComparacion), desapilar(&pilaComparacion)));}
+	|NOT {printf("NOT\n");} comparacion {apilar(&pilaCondicion, crear_nodo("NOT", NULL, desapilar(&pilaComparacion)));}
+	|comparacion {apilar(&pilaCondicion, desapilar(&pilaComparacion));}
+	|comparacion_str oper_cond comparacion_str {apilar(&pilaCondicion, crear_nodo(signoc, desapilar(&pilaComparacion), desapilar(&pilaComparacion)));}
+	|comparacion_str {apilar(&pilaCondicion, desapilar(&pilaComparacion));}
+	|comparacion_str oper_cond comparacion {apilar(&pilaCondicion, crear_nodo(signoc, desapilar(&pilaComparacion), desapilar(&pilaComparacion)));}
+	|comparacion oper_cond comparacion_str {apilar(&pilaCondicion, crear_nodo(signoc, desapilar(&pilaComparacion), desapilar(&pilaComparacion)));}
 	;
 	
 oper_cond:
@@ -232,11 +205,7 @@ oper_cond:
 	;
 	
 comparacion:
-	expresion2 oper_comp expresion {coptr = crear_nodo(signo, e2ptr, eptr);}
-	;
-
-comparacion2:
-	comparacion {co2ptr = coptr;}
+	expresion oper_comp expresion {apilar(&pilaComparacion, crear_nodo(signo, desapilar(&pilaExpresion), desapilar(&pilaExpresion)));}
 	;
 
 oper_comp:
@@ -249,17 +218,13 @@ oper_comp:
 	;
 	
 comparacion_str:
-	expresion_str2 IGUAL {printf("IGUAL\n");} expresion_str {cosptr = crear_nodo("==", e2ptr, eptr);}
-	|expresion_str2 DISTINTO {printf("DISTINTO\n");} expresion_str {cosptr = crear_nodo("<>", e2ptr, eptr);}
-	;
-	
-comparacion_str2:
-	comparacion_str {cos2ptr = cosptr;}
+	expresion_str IGUAL {printf("IGUAL\n");} expresion_str {apilar(&pilaComparacion, crear_nodo("==", desapilar(&pilaExpresion), desapilar(&pilaExpresion)));}
+	|expresion_str DISTINTO {printf("DISTINTO\n");} expresion_str {apilar(&pilaComparacion, crear_nodo("<>", desapilar(&pilaExpresion), desapilar(&pilaExpresion)));}
 	;
 	
 expresiones:
-	expresion2 {e3ptr = e2ptr;}
-	|expresion_str2 {e3ptr = e2ptr;}
+	expresion
+	|expresion_str
 	;
 	
 entero:
@@ -281,12 +246,12 @@ dato:
 	;
 	
 lista:
-	COR_ABRE {printf("COR_ABRE\n");} elementolista COR_CIERRA {printf("COR_CIERRA\n"); lptr = l2ptr;}
+	COR_ABRE {printf("COR_ABRE\n");} elementolista COR_CIERRA {printf("COR_CIERRA\n");}
 	;
 	
 elementolista:
-	expresion {l2ptr = eptr;}
-	|elementolista SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} expresion {l2ptr = crear_nodo(",", l2ptr, eptr);}
+	expresiones {Plista = desapilar(&pilaExpresion);}
+	|elementolista SEPARDOR_COMA {printf("SEPARDOR_COMA\n");} expresiones {Plista = crear_nodo("COMA", Plista, desapilar(&pilaExpresion));}
 	;
 	
 tipo:
@@ -344,7 +309,7 @@ void imprimir_arbol() {
 	nroNodo = 1;
 	archivoArbolSintactico = fopen("./Intermedia.txt","w+t");
 	fprintf(archivoArbolSintactico, "\nARBOL SINTACTICO:\n================\n\n");
-	arbol_sintactico = pptr;
+	arbol_sintactico = Pprograma;
 	nroNodoColocar(arbol_sintactico);
 	imprimir_nodos_inorder(arbol_sintactico);
 	
@@ -375,22 +340,53 @@ arbol* crear_hoja(char* elem) {
 	return nueva_hoja;
 }
 
+nodo* apilar (t_pila * Ppila, nodo * tnodo) {
+  Ppila->tope++;
+  Ppila->pila[Ppila->tope] = tnodo;  
+  return Ppila->pila[ Ppila->tope ] ;
+}
+
+nodo* desapilar(t_pila * Ppila) {
+     nodo * tnodo;
+     tnodo =  Ppila->pila[Ppila->tope];
+     Ppila->tope--;
+     return tnodo;
+}
+
+int pilaVacia(t_pila * Ppila) {
+    int vacia = 0;
+    if(Ppila->tope == -1) {
+        vacia= 1;
+    }
+    return vacia;
+}
+
+nodo * verPrimero (t_pila * Ppila) {       
+    return  Ppila->pila[Ppila->tope];
+}
+
+void inicializarPila (t_pila * Ppila ) {
+    Ppila->tope = -1;
+}  
+
 int yyerror(char const*) {
 	printf("Error de sintaxis");
 }
 
 int main(int argc, char *argv[]) {
 	encError = 0;
+	inicializarPila(& pilaExpresion);
+    inicializarPila(& pilaSentencias);
+    inicializarPila(& pilaTermino);
+    inicializarPila(& pilaFactor);
+    inicializarPila(& pilaCondicion);
+	inicializarPila(& pilaComparacion);
 	if((yyin = fopen(argv[1],"rt")) == NULL) {	
 		printf("No se puede abrir el archivo\n");
 	} else {
 		yyparse();
 	}
 	fclose(yyin);
-	
-	if (encError == 0) {
-		imprimir_tabla_de_simbolos();
-	}
 	
 	return 0;
 }
