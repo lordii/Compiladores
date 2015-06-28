@@ -3,7 +3,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include<ctype.h>
-int yyerror(char const*);
 extern int yyparse();
 extern "C" int yylex();
 extern "C" void imprimir_tabla_de_simbolos();
@@ -12,26 +11,28 @@ extern "C" int verificar_tipoVariable(int posT);
 extern "C" char* nombre_varTabla(int posT);
 extern "C" void agrConstante(int posTbl);
 extern "C" int esConstante(int posTbl);
+extern "C" int comprobar_tipo_expresion(int posTbl, int vlAnt);
 extern FILE *yyin;
-int yystopparser=0;
-int posTbl, nroNodo, encError;
-struct nodo {
+int yyerror(char const*);
+int posTbl, nroNodo, encError, nroTipo, errTipo, comTipo;
+char signoc[5], signo[5];
+struct tnodo {
 	char elemento[100];
 	int nroN;
-	struct nodo *izq, *der;
+	struct tnodo *izq, *der;
 };
-typedef struct nodo arbol;
+typedef struct tnodo arbol;
 arbol* arbol_sintactico = NULL;
 typedef struct{
-	nodo * pila [100];
+	tnodo * pila [100];
 	int tope;
-}t_pila;
-t_pila pilaSentencias, pilaExpresion, pilaTermino, pilaFactor, pilaCondicion, pilaComparacion;
-nodo *  Pprograma, *  Psentencia, *  Pasignacion, *  Pexpresion, *  Ptermino, *  Pfactor,
-	 *  Pcondicion, *  Pcomparaciones, *  Psalida, *  Pentrada, *  Pdecision, *  Prepeat,
-     *  Pqequal, *  Punary, *  Plista, *  Pcuerpo;
-char signoc[5], signo[5];
+}tpila;
+tpila pilaSentencias, pilaExpresion, pilaTermino, pilaFactor, pilaCondicion, pilaComparacion;
+tnodo *  Pprograma, *  Psentencia, *  Pasignacion, *  Pexpresion, *  Ptermino, *  Pfactor,
+	  *  Pcondicion, *  Pcomparaciones, *  Psalida, *  Pentrada, *  Pdecision, *  Prepeat,
+      *  Pqequal, *  Punary, *  Plista, *  Pcuerpo;
 FILE * archivoArbolSintactico;
+FILE * archivoAsm;
 arbol* crear_nodo(char* elem, arbol* ni, arbol* nd);
 arbol* crear_hoja(char* elem);
 %}
@@ -83,7 +84,7 @@ arbol* crear_hoja(char* elem);
 %%
 
 programastart:
-	programa {if (encError == 0) {imprimir_tabla_de_simbolos(); imprimir_arbol();}}
+	programa {if (encError == 0) {imprimir_tabla_de_simbolos(); imprimir_arbol(); crear_archAsm();}}
 	;
 
 programa:
@@ -106,16 +107,16 @@ acciones:
 	;
 	
 accion:
-	asignacion {Psentencia = Pasignacion;}
+	asignacion {Psentencia = Pasignacion; if (errTipo == 1) {encError = 1; printf("Error de tipos en la asignacion\n");} errTipo = 0; nroTipo = -1;}
 	|definicionconstante 
 	|entrada {Psentencia = Pentrada;}
-	|salida	{Psentencia = Psalida;}
+	|salida	{Psentencia = Psalida; if (errTipo == 1) {encError = 1; printf("Error de tipos en la expresion\n");} errTipo = 0; nroTipo = -1;}
 	|repeat {Psentencia = Prepeat;}
 	|if {Psentencia = Pdecision;}
 	;
 	
 asignacion:
-	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} if (esConstante($1) == 1) {printf("'%s' no puede cambiar su valor porque esta declarada como constante\n", nombre_varTabla($1)); encError=1;}} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); Pasignacion = crear_nodo("=", crear_hoja(nombre_varTabla($1)), desapilar(&pilaExpresion));}
+	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} if (esConstante($1) == 1) {printf("'%s' no puede cambiar su valor porque esta declarada como constante\n", nombre_varTabla($1)); encError=1;}} SIG_ASIGNACION {printf("SIG_ASIGNACION\n");} expresiones FIN_SENTENCIA {printf("FIN_SENTENCIA\n"); comTipo = comprobar_tipo_expresion($1, nroTipo); if (comTipo == 99) {errTipo = 1;} else {if (comTipo != 0) {nroTipo = comTipo;}} Pasignacion = crear_nodo("=", crear_hoja(nombre_varTabla($1)), desapilar(&pilaExpresion));}
 	;
 	
 definicionconstante:
@@ -135,23 +136,23 @@ termino:
 	;
 	
 factor:
-	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} apilar(&pilaFactor, crear_hoja(nombre_varTabla($1)));}
+	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} comTipo = comprobar_tipo_expresion($1, nroTipo); if (comTipo == 99) {errTipo = 1;} else {if (comTipo != 0) {nroTipo = comTipo;}} apilar(&pilaFactor, crear_hoja(nombre_varTabla($1)));}
 	|PAR_ABRE expresion PAR_CIERRA  {apilar(&pilaFactor, desapilar(&pilaExpresion));} 
-	|unaryif {apilar(&pilaFactor, Punary);}
-	|qequal {apilar(&pilaFactor, Pqequal);}
-	|CTE_ENTERA {printf("CTE_ENTERA\n"); agregar_tipoVarible_a_tabla($1,0); apilar(&pilaFactor, crear_hoja(nombre_varTabla($1)));}
-	|CTE_REAL {printf("CTE_REAL\n"); agregar_tipoVarible_a_tabla($1,1); apilar(&pilaFactor, crear_hoja(nombre_varTabla($1)));}
+	|unaryif {apilar(&pilaFactor, Punary); if (errTipo == 1) {encError = 1; printf("Error de tipos en la unaryif\n");} errTipo = 0; nroTipo = -1;}
+	|qequal {apilar(&pilaFactor, Pqequal); if (errTipo == 1) {encError = 1; printf("Error de tipos en la qequal\n");} errTipo = 0; nroTipo = -1;}
+	|CTE_ENTERA {printf("CTE_ENTERA\n"); agregar_tipoVarible_a_tabla($1,0); comTipo = comprobar_tipo_expresion($1, nroTipo); if (comTipo == 99) {errTipo = 1;} else {if (comTipo != 0) {nroTipo = comTipo;}} apilar(&pilaFactor, crear_hoja(nombre_varTabla($1)));}
+	|CTE_REAL {printf("CTE_REAL\n"); agregar_tipoVarible_a_tabla($1,1); comTipo = comprobar_tipo_expresion($1, nroTipo); if (comTipo == 99) {errTipo = 1;} else {if (comTipo != 0) {nroTipo = comTipo;}} apilar(&pilaFactor, crear_hoja(nombre_varTabla($1)));}
 	;
 	
 expresion_str:
-	idstring CONCATENACION {printf("CONCATENACION\n");} ID {printf("ID\n"); if (verificar_tipoVariable($4) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($4));} apilar(&pilaExpresion, crear_nodo("++", desapilar(&pilaTermino), crear_hoja(nombre_varTabla($4))));}
-	|idstring CONCATENACION {printf("CONCATENACION\n");} CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($4,2); apilar(&pilaExpresion, crear_nodo("++", desapilar(&pilaTermino), crear_hoja(nombre_varTabla($4))));}
-	|CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); apilar(&pilaExpresion, crear_hoja(nombre_varTabla($1)));}
+	idstring CONCATENACION {printf("CONCATENACION\n");} ID {printf("ID\n"); if (verificar_tipoVariable($4) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($4));} apilar(&pilaExpresion, crear_nodo("++", desapilar(&pilaTermino), crear_hoja(nombre_varTabla($4)))); comTipo = comprobar_tipo_expresion($4, nroTipo); if (comTipo == 99) {errTipo = 1;} else {if (comTipo != 0) {nroTipo = comTipo;}}}
+	|idstring CONCATENACION {printf("CONCATENACION\n");} CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($4,2); apilar(&pilaExpresion, crear_nodo("++", desapilar(&pilaTermino), crear_hoja(nombre_varTabla($4)))); comTipo = comprobar_tipo_expresion($4, nroTipo); if (comTipo == 99) {errTipo = 1;} else {if (comTipo != 0) {nroTipo = comTipo;}}}
+	|CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); apilar(&pilaExpresion, crear_hoja(nombre_varTabla($1))); comTipo = comprobar_tipo_expresion($1, nroTipo); if (comTipo == 99) {errTipo = 1;} else {if (comTipo != 0) {nroTipo = comTipo;}}}
 	;
 	
 idstring:
-	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} apilar(&pilaTermino, crear_hoja(nombre_varTabla($1)));}
-	|CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); apilar(&pilaTermino, crear_hoja(nombre_varTabla($1)));}
+	ID {printf("ID\n"); if (verificar_tipoVariable($1) == 1) {printf("Variable '%s' no declarada\n", nombre_varTabla($1)); encError=1;} apilar(&pilaTermino, crear_hoja(nombre_varTabla($1))); comTipo = comprobar_tipo_expresion($1, nroTipo); if (comTipo == 99) {errTipo = 1;} else {if (comTipo != 0) {nroTipo = comTipo;}}}
+	|CTE_STRING {printf("CTE_STRING\n"); agregar_tipoVarible_a_tabla($1,2); apilar(&pilaTermino, crear_hoja(nombre_varTabla($1))); comTipo = comprobar_tipo_expresion($1, nroTipo); if (comTipo == 99) {errTipo = 1;} else {if (comTipo != 0) {nroTipo = comTipo;}}}
 	;
 	
 repeat:
@@ -205,7 +206,7 @@ oper_cond:
 	;
 	
 comparacion:
-	expresion oper_comp expresion {apilar(&pilaComparacion, crear_nodo(signo, desapilar(&pilaExpresion), desapilar(&pilaExpresion)));}
+	expresion oper_comp expresion {if (errTipo == 1) {encError = 1; printf("Error de tipos en la comparacion\n");} errTipo = 0; nroTipo = -1; apilar(&pilaComparacion, crear_nodo(signo, desapilar(&pilaExpresion), desapilar(&pilaExpresion)));}
 	;
 
 oper_comp:
@@ -218,8 +219,8 @@ oper_comp:
 	;
 	
 comparacion_str:
-	expresion_str IGUAL {printf("IGUAL\n");} expresion_str {apilar(&pilaComparacion, crear_nodo("==", desapilar(&pilaExpresion), desapilar(&pilaExpresion)));}
-	|expresion_str DISTINTO {printf("DISTINTO\n");} expresion_str {apilar(&pilaComparacion, crear_nodo("<>", desapilar(&pilaExpresion), desapilar(&pilaExpresion)));}
+	expresion_str IGUAL {printf("IGUAL\n");} expresion_str {if (errTipo == 1) {encError = 1; printf("Error de tipos en la comparacion\n");} errTipo = 0; nroTipo = -1; apilar(&pilaComparacion, crear_nodo("==", desapilar(&pilaExpresion), desapilar(&pilaExpresion)));}
+	|expresion_str DISTINTO {printf("DISTINTO\n");} expresion_str {if (errTipo == 1) {encError = 1; printf("Error de tipos en la comparacion\n");} errTipo = 0; nroTipo = -1; apilar(&pilaComparacion, crear_nodo("<>", desapilar(&pilaExpresion), desapilar(&pilaExpresion)));}
 	;
 	
 expresiones:
@@ -313,9 +314,9 @@ void imprimir_arbol() {
 	nroNodoColocar(arbol_sintactico);
 	imprimir_nodos_inorder(arbol_sintactico);
 	
-	fprintf(archivoArbolSintactico, "\n\nARBOL SINTACTICO:\n================\n\n");
+	/*fprintf(archivoArbolSintactico, "\n\nARBOL SINTACTICO:\n================\n\n");
 	
-	imprimir_nodos(arbol_sintactico);
+	imprimir_nodos(arbol_sintactico);*/
 	
 	fclose(archivoArbolSintactico);
 }
@@ -340,32 +341,120 @@ arbol* crear_hoja(char* elem) {
 	return nueva_hoja;
 }
 
-nodo* apilar (t_pila * Ppila, nodo * tnodo) {
+tnodo* apilar (tpila * Ppila, tnodo * tnodo) {
   Ppila->tope++;
   Ppila->pila[Ppila->tope] = tnodo;  
   return Ppila->pila[ Ppila->tope ] ;
 }
 
-nodo* desapilar(t_pila * Ppila) {
-     nodo * tnodo;
+tnodo* desapilar(tpila * Ppila) {
+     tnodo * tnodo;
      tnodo =  Ppila->pila[Ppila->tope];
      Ppila->tope--;
      return tnodo;
 }
 
-int pilaVacia(t_pila * Ppila) {
-    int vacia = 0;
-    if(Ppila->tope == -1) {
-        vacia= 1;
-    }
-    return vacia;
+int nro_nodo(char* linea) {
+	const char del[7] = "nodo :";
+	char *token;
+	
+	token = strtok(linea, del);
+	return atoi(token);
+}
+int der_nodo(char* linea) {
+	const char del[4] = " :\n";
+	const char del2[2] = ",";
+	char *token;
+	char *aux, *aux2;
+	
+	token = strtok(linea, del);
+	while ( token != NULL ) {
+		aux = token;
+		token = strtok(NULL, del);
+	}
+	
+	token = strtok(aux, del2);
+	
+	if (strcmp(token, "-") == 0) {
+		return 0;
+	} else {
+		return atoi(token);
+	}
+}
+int izq_nodo(char* linea) {
+	const char del[4] = " :\n";
+	const char del2[2] = ",";
+	char *token;
+	char *aux, *aux2;
+	
+	token = strtok(linea, del);
+	while ( token != NULL ) {
+		aux = token;
+		token = strtok(NULL, del);
+	}
+	
+	token = strtok(aux, del2);
+	
+	while ( token != NULL ) {
+		aux2 = token;
+		token = strtok(NULL, del2);
+	}
+	
+	if (strcmp(aux2, "-") == 0) {
+		return 0;
+	} else {
+		return atoi(aux2);
+	}
+}
+char* val_nodo(char* linea) {
+	const char del[4] = " :\n";
+	const char del2[2] = ",";
+	char *token;
+	char *aux, *aux2;
+	
+	token = strtok(linea, del);
+	while ( token != NULL ) {
+		aux = token;
+		token = strtok(NULL, del);
+	}
+	
+	token = strtok(aux, del2);
+	token = strtok(NULL, del2);
+	
+	return token;
 }
 
-nodo * verPrimero (t_pila * Ppila) {       
-    return  Ppila->pila[Ppila->tope];
+void crear_archAsm() {
+	char linea[100], laux[100], valNodo[50];
+	int nodoActual, nodoDer, nodoIzq;
+
+	archivoAsm = fopen("./FINAL.ASM","w+b");
+	fprintf(archivoAsm, "");
+	
+	archivoArbolSintactico = fopen("./Intermedia.txt","r");
+	for (int i = 0; i < 5; i+=1) {
+		fgets(linea, 100, archivoArbolSintactico);
+	}
+	
+	while (feof(archivoArbolSintactico) == 0) {
+		strcpy(laux, linea);
+		nodoActual = nro_nodo(laux);
+		strcpy(laux, linea);
+		nodoDer = der_nodo(laux);
+		strcpy(laux, linea);
+		nodoIzq = izq_nodo(laux);
+		strcpy(valNodo,val_nodo(linea));
+		
+		printf("%d - %d %s %d\n", nodoActual, nodoDer, valNodo, nodoIzq);
+		
+		fgets(linea, 100, archivoArbolSintactico);
+	}
+	
+	fclose(archivoArbolSintactico);
+	fclose(archivoAsm);
 }
 
-void inicializarPila (t_pila * Ppila ) {
+void inicializarPila (tpila * Ppila ) {
     Ppila->tope = -1;
 }  
 
@@ -373,14 +462,21 @@ int yyerror(char const*) {
 	printf("Error de sintaxis");
 }
 
-int main(int argc, char *argv[]) {
+void inicializarDatos() {
 	encError = 0;
+	nroTipo = -1;
+	errTipo = 0;
+	comTipo = 0;
 	inicializarPila(& pilaExpresion);
     inicializarPila(& pilaSentencias);
     inicializarPila(& pilaTermino);
     inicializarPila(& pilaFactor);
     inicializarPila(& pilaCondicion);
 	inicializarPila(& pilaComparacion);
+}
+
+int main(int argc, char *argv[]) {
+	inicializarDatos();
 	if((yyin = fopen(argv[1],"rt")) == NULL) {	
 		printf("No se puede abrir el archivo\n");
 	} else {
