@@ -87,7 +87,7 @@ void agregar_tipoVarible_a_tabla(int posTbl, int type) {
 	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
 		act = act->siguiente;
 	
-	if (act->numero == posTbl) {
+	if ((act->numero == posTbl) && (act->tipo != "")) {
 		switch (type) {
 			case 0:
 				strcpy(act->tipo,"INT");
@@ -125,6 +125,35 @@ int esConstante(int posTbl) {
 			} else {
 				return 0;
 			}
+	}
+}
+
+int comprobar_tipo_expresion(int posTbl, int vlAnt) {
+	tabla *act = tabla_simbolos;
+	int aux, res;
+	
+	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
+		act = act->siguiente;
+	
+	if (act->numero == posTbl) {
+		if (strcmp(act->tipo,"INT") == 0) {
+			aux = 1;
+		} else if (strcmp(act->tipo,"REAL") == 0) {
+			aux = 2;
+		} else if (strcmp(act->tipo,"STRING") == 0) {
+			aux = 3;
+		}
+		if (vlAnt == -1) {
+			res = aux;
+		} else {
+			if (aux == vlAnt) {
+				res = 0;
+			} else {
+				res = 99;
+			}
+		}
+	
+		return res;
 	}
 }
 
@@ -213,8 +242,8 @@ int cont_cte() {
 }
 
 int fin_cte() {
-	if (cte_int > 65535) {
-       	printf("\nError: Entero demasiado largo. (No puede superar 65535)\n");
+	if ((cte_int > 65535) || (cte_int < -65535)) {
+       	printf("\nError: El entero debe estar entre -65535 y 65535)\n");
        	return ERROR;
     } else {
 		int pos_en_tabla = existe_en_tabla_simbolos(token);
@@ -666,6 +695,5 @@ int yylex() {
     }
 	
 	yylval = token_resultante;
-	//printf("%d ",yylval);
 	return tToken;
 }
