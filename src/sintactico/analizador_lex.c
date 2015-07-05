@@ -19,6 +19,7 @@ struct ts {
 	char nombre[100];
 	char tipo[100];
 	char constante[2];
+	char valor[100];
 	struct ts *siguiente;
 };
 typedef struct ts tabla;
@@ -42,6 +43,7 @@ int insertar_en_tabla_simbolos(char nombre[100]) {
 	strcpy(nuevo_reg->nombre,nombre);
 	strcpy(nuevo_reg->tipo,"");
 	strcpy(nuevo_reg->constante,"");
+	strcpy(nuevo_reg->valor,"");
 	
 	if (tabla_simbolos == NULL) {
 		nuevo_reg->numero = 1;
@@ -63,7 +65,7 @@ void imprimir_tabla_de_simbolos() {
 	fprintf(archivoTablaSimbolos, "\nTABLA DE SIMBOLOS:\n=================\n\n");
 	
 	while(act != NULL) { 
- 	    fprintf(archivoTablaSimbolos, "Número: %i\tNombre: %s\tTipo: %s\tConstante: %s\n",act->numero,act->nombre,act->tipo,act->constante);
+ 	    fprintf(archivoTablaSimbolos, "Número: %i\tNombre: %s\tTipo: %s\tConstante: %s\tValor: %s\n",act->numero,act->nombre,act->tipo,act->constante,act->valor);
  	    act = act->siguiente;
 	}
 	
@@ -98,7 +100,27 @@ void agregar_tipoVarible_a_tabla(int posTbl, int type) {
 			case 2:
 				strcpy(act->tipo,"STRING");
 				break;
+			case 3:
+				strcpy(act->tipo,"CTE_INT");
+				break;
+			case 4:
+				strcpy(act->tipo,"CTE_REAL");
+				break;
+			case 5:
+				strcpy(act->tipo,"CTE_STRING");
+				break;
 		} 
+	}
+}
+
+void agrValorConstante(int posTbl, char valor[100]) {
+	tabla *act = tabla_simbolos;
+	
+	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
+		act = act->siguiente;
+	
+	if (act->numero == posTbl) {
+		stpcpy(act->valor,valor);
 	}
 }
 
@@ -109,7 +131,7 @@ void agrConstante(int posTbl) {
 		act = act->siguiente;
 	
 	if (act->numero == posTbl) {
-			stpcpy(act->constante,"X");
+		stpcpy(act->constante,"X");
 	}
 }
 
@@ -120,11 +142,11 @@ int esConstante(int posTbl) {
 		act = act->siguiente;
 	
 	if (act->numero == posTbl) {
-			if (strcmp(act->constante,"X") == 0) {
-				return 1;
-			} else {
-				return 0;
-			}
+		if (strcmp(act->constante,"X") == 0) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 }
 
@@ -136,11 +158,11 @@ int comprobar_tipo_expresion(int posTbl, int vlAnt) {
 		act = act->siguiente;
 	
 	if (act->numero == posTbl) {
-		if (strcmp(act->tipo,"INT") == 0) {
+		if ((strcmp(act->tipo,"INT") == 0) || (strcmp(act->tipo,"CTE_INT") == 0)) {
 			aux = 1;
-		} else if (strcmp(act->tipo,"REAL") == 0) {
+		} else if ((strcmp(act->tipo,"REAL") == 0) || (strcmp(act->tipo,"CTE_REAL") == 0)) {
 			aux = 2;
-		} else if (strcmp(act->tipo,"STRING") == 0) {
+		} else if ((strcmp(act->tipo,"STRING") == 0) || (strcmp(act->tipo,"CTE_STRING") == 0)) {
 			aux = 3;
 		}
 		if (vlAnt == -1) {
@@ -155,6 +177,26 @@ int comprobar_tipo_expresion(int posTbl, int vlAnt) {
 	
 		return res;
 	}
+}
+
+int devolver_tipoDato(char* valor) {
+	tabla *act = tabla_simbolos;
+	int res;
+	
+	while ((act->siguiente != NULL) && (strcmp(act->nombre, valor) != 0)) 
+		act = act->siguiente;
+	
+	if (strcmp(act->nombre, valor) == 0) {
+		if ((strcmp(act->tipo,"INT") == 0) || (strcmp(act->tipo,"REAL") == 0) || (strcmp(act->tipo,"STRING") == 0)) {
+			res = 1;
+		} else if ((strcmp(act->tipo,"CTE_INT") == 0) || (strcmp(act->tipo,"CTE_REAL") == 0) || (strcmp(act->tipo,"CTE_STRING") == 0)) {
+			res = 2;
+		}
+	
+		return res;
+	}
+	
+	return 0;
 }
 
 int verificar_tipoVariable(int posTbl) {
@@ -188,6 +230,41 @@ char* nombre_varTabla(int posTbl) {
 	}
 	
 	return "";
+}
+
+char* tipo_varTabla(int posTbl) {
+	tabla *act = tabla_simbolos;
+	
+	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
+		act = act->siguiente;
+	
+	if (act->numero == posTbl) {		
+		return act->tipo;
+	}
+	
+	return "";
+}
+
+char* valor_varTabla(int posTbl) {
+	tabla *act = tabla_simbolos;
+	
+	while ((act->siguiente != NULL) && (act->numero < posTbl)) 
+		act = act->siguiente;
+	
+	if (act->numero == posTbl) {
+		return act->valor;
+	}
+	
+	return "";
+}
+
+int cant_varTabla() {
+	tabla *act = tabla_simbolos;
+	
+	while (act->siguiente != NULL) 
+		act = act->siguiente;
+	
+	return act->numero;
 }
 
 int es_palabra_reservada(char* palabra) {
@@ -233,14 +310,12 @@ int inic_cte() {
     longitud = 1;
     return 0;
 }
-
 int cont_cte() {
     completa_token(token,caracter);
     cte_int = cte_int * 10 + atoi(&caracter);
 	longitud++;
 	return 0;
 }
-
 int fin_cte() {
 	if ((cte_int > 65535) || (cte_int < -65535)) {
        	printf("\nError: El entero debe estar entre -65535 y 65535)\n");
@@ -266,7 +341,6 @@ int inic_real() {
     longitud = 1;
     return 0;
 }
-
 int cont_real() {
     completa_token(token,caracter);
     if (strcmp(&caracter,".") == 0) {
@@ -282,7 +356,6 @@ int cont_real() {
     longitud++;
     return 0;
 }
-
 int fin_real() {
     int pos_en_tabla = existe_en_tabla_simbolos(token);
 
@@ -298,13 +371,11 @@ int inic_str() {
     longitud = 1;
     return 0;
 }
-
 int cont_str() {
     completa_token(token,caracter);
     longitud++;
     return 0;
 }
-
 int fin_str() {
 	completa_token(token,caracter);
 	longitud++;
@@ -327,13 +398,11 @@ int inic_id() {
     longitud = 1;
     return 0;
 }
-
 int cont_id() {
     completa_token(token,caracter);
     longitud++;
     return 0;
 }
-
 int fin_id() {
     int es_reservada = -1;
     int pos_en_tabla = -1;
@@ -520,19 +589,14 @@ int separador() {
 
 int inic_com() {
 	inicializa_token(token);
-    return -2; // VERRRRR!! que devuelvo?? 0 es token OJO!!
+    return -2; 
 }
-
-int cont_com() {
-    return -2; // VERRRRR!! que devuelvo?? 0 es token OJO!!
-}
-
 int fin_com() {
-    return -2; // VERRRRR!! que devuelvo?? 0 es token OJO!!
+    return -2; 
 }
 
 int sin_transicion() {
-    return -2; // VERRRRR!! que devuelvo?? 0 es token OJO!!
+    return -2; 
 }
 
 
